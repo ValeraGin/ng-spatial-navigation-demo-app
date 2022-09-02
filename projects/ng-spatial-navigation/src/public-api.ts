@@ -1,0 +1,10 @@
+/*
+ * Public API Surface of ng-spatial-navigation
+ */
+export * from './lib/ng-spatial-navigation.module';
+
+export * from './lib/directives/nav-focusable.directive';
+export * from './lib/directives/nav-grid.directive';
+export * from './lib/directives/nav-list.directive';
+export * from './lib/directives/nav-root.directive';
+export * from './lib/directives/nav-layer.directive';
