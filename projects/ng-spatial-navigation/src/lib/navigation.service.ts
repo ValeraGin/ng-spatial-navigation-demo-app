@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core';
 import { Debounce } from './decorators/debounce.decorator';
 import { findCommonParent } from './utils/find-common-parent';
 import { FocusableNavItem, NavItem } from './types/nav-item.type';
-import { debug } from './utils/debug';
 import { Direction } from './types/direction.type';
 import { NavigationItemsStoreService } from './navigation-items-store.service';
 import { FocusStatus } from './types/focus-status.type';
 import { isBlockNavigation } from './type-guards/is-block-navigation';
+import { debugLog } from './utils/debug';
+
+import scrollIntoView from 'scroll-into-view-if-needed';
 
 /**
  * When the elements start to appear on the page on the same page,
@@ -16,7 +18,6 @@ export const TIME_DEBOUNCE_FOCUS_IN_MS = 200;
 
 @Injectable()
 export class NavigationService {
-
   focusedNavItem: FocusableNavItem | undefined;
 
   private status: FocusStatus = 'waiting';
@@ -25,19 +26,22 @@ export class NavigationService {
 
   private navItemsForCheckFocus: NavItem[] = [];
 
-  constructor(private navigationItemsStoreService: NavigationItemsStoreService) {
+  constructor(
+    private navigationItemsStoreService: NavigationItemsStoreService
+  ) {
+    debugLog('create NavigationService')
   }
 
   @Debounce(TIME_DEBOUNCE_FOCUS_IN_MS)
-  markFocusForCheck() {
-    if (this.status !== 'waiting') {
+  markFocusForCheck(): void {
+    if (this.status !== 'waiting' || this.navItemsForCheckFocus.length === 0) {
       this.navItemsForCheckFocus = [];
-      return
+      return;
     }
-    const commonParent = findCommonParent(...this.navItemsForCheckFocus)
+    const commonParent = findCommonParent(...this.navItemsForCheckFocus);
     this.navItemsForCheckFocus = [];
     if (commonParent) {
-      this.focusWithFind(commonParent)
+      this.focusWithFind(commonParent);
     }
   }
 
@@ -45,25 +49,39 @@ export class NavigationService {
     const findFocus = navItem.findFocus();
     if (findFocus) {
       this.focus(findFocus);
-      return true
+      return true;
     } else {
-      return false
+      return false;
     }
   }
 
   focus(navItem: FocusableNavItem): boolean {
-    debug(`move focus to element with id=${navItem.id}`)
+    if (navItem === this.focusedNavItem) {
+      return true;
+    }
+    debugLog(`move focus to element with id=${navItem.id}`);
     if (this.focusedNavItem) {
       this.focusedNavItem.unsetFocus(navItem);
     }
     this.focusedNavItem = navItem;
+
+    scrollIntoView(this.focusedNavItem.el.nativeElement, {
+      scrollMode: 'always',
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'center',
+    })
+
+    // this.focusedNavItem.el.nativeElement.scrollIntoView();
     this.focusedNavItem.setFocus(() => this.focusedElementDestroyed());
     this.status = 'default';
     return true;
   }
 
-  focusedElementDestroyed() {
-    const findReplaceRecursive = (navItem: NavItem): FocusableNavItem | undefined => {
+  focusedElementDestroyed(): void {
+    const findReplaceRecursive = (
+      navItem: NavItem
+    ): FocusableNavItem | undefined => {
       if (navItem && navItem.parent) {
         const replaceNavItem = navItem.parent.findReplace(navItem);
         if (replaceNavItem) {
@@ -71,71 +89,83 @@ export class NavigationService {
           if (findFocus) {
             return findFocus;
           }
-          return findReplaceRecursive(replaceNavItem)
+          return findReplaceRecursive(replaceNavItem);
         }
         if (navItem.parent) {
-          return findReplaceRecursive(navItem.parent)
+          return findReplaceRecursive(navItem.parent);
         }
       }
-      return
-    }
+      return;
+    };
 
     if (this.focusedNavItem) {
       const replaceNavItem = findReplaceRecursive(this.focusedNavItem);
       if (replaceNavItem) {
-        this.focus(replaceNavItem)
+        this.focus(replaceNavItem);
       }
     }
   }
 
   navigate(direction: Direction): boolean {
-    const getFromDirectionRecursive = (currentItem: NavItem): NavItem | undefined => {
+    const getFromDirectionRecursive = (
+      currentItem: NavItem
+    ): NavItem | undefined => {
       const directionDataWithFn = currentItem[direction];
-      const directionDataWithElement = typeof directionDataWithFn === 'function' ? directionDataWithFn() : directionDataWithFn;
+      const directionDataWithElement =
+        typeof directionDataWithFn === 'function'
+          ? directionDataWithFn()
+          : directionDataWithFn;
       if (isBlockNavigation(directionDataWithElement)) {
-        console.log(directionDataWithElement)
-        return undefined
+        return undefined;
       }
-      const directionData = directionDataWithElement instanceof HTMLElement
-        ? this.navigationItemsStoreService.getNavItemByElement(directionDataWithElement)
-        : directionDataWithElement;
-      const navItem = typeof directionData === 'string'
-        ? this.navigationItemsStoreService.getNavItemById(directionData)
-        : directionData
+      const directionData =
+        directionDataWithElement instanceof HTMLElement
+          ? this.navigationItemsStoreService.getNavItemByElement(
+              directionDataWithElement
+            )
+          : directionDataWithElement;
+      const navItem =
+        typeof directionData === 'string'
+          ? this.navigationItemsStoreService.getNavItemById(directionData)
+          : directionData;
       if (navItem === undefined) {
         if (currentItem.parent) {
           return getFromDirectionRecursive(currentItem.parent);
         } else {
-          return
+          return;
         }
       } else {
-        return navItem
+        return navItem;
       }
-    }
+    };
 
-    const getNavItemInDirectionRecursive = (currentNavItem: NavItem): FocusableNavItem | undefined => {
+    const getNavItemInDirectionRecursive = (
+      currentNavItem: NavItem
+    ): FocusableNavItem | undefined => {
       if (!currentNavItem) {
-        return
+        return;
       }
       const fromDirection = getFromDirectionRecursive(currentNavItem);
       if (fromDirection) {
         const findFocus = fromDirection.findFocus();
         if (findFocus) {
-          return findFocus
+          return findFocus;
         } else {
-          return getNavItemInDirectionRecursive(fromDirection)
+          return getNavItemInDirectionRecursive(fromDirection);
         }
       }
-      return
-    }
+      return;
+    };
 
     if (this.focusedNavItem) {
-      const elementToFocus = getNavItemInDirectionRecursive(this.focusedNavItem)
+      const elementToFocus = getNavItemInDirectionRecursive(
+        this.focusedNavItem
+      );
       if (elementToFocus && this.focus(elementToFocus)) {
-        debug(`success navigate to ${direction} direction`)
+        debugLog(`success navigate to ${direction} direction`);
         return true;
       } else {
-        debug(`failure navigate to ${direction} direction`)
+        debugLog(`failure navigate to ${direction} direction`);
       }
     }
     return false;
@@ -145,9 +175,12 @@ export class NavigationService {
     if (this.status === 'waiting') {
       this.navItemsForCheckFocus.push(navItem);
       this.markFocusForCheck();
-    } else if (this.status === 'waiting_id' && this.waitingId && this.waitingId === navItem.id) {
+    } else if (
+      this.status === 'waiting_id' &&
+      this.waitingId &&
+      this.waitingId === navItem.id
+    ) {
       this.focusWithFind(navItem);
     }
   }
-
 }

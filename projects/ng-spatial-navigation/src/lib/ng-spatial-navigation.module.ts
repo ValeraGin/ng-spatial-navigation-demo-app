@@ -4,6 +4,10 @@ import { NavFocusableDirective } from './directives/nav-focusable.directive';
 import { NavGridDirective } from './directives/nav-grid.directive';
 import { NavRootDirective } from './directives/nav-root.directive';
 import { NavLayerDirective } from './directives/nav-layer.directive';
+import { NgSpatialNavigationService } from './ng-spatial-navigation.service';
+import { NavigationItemsStoreService } from './navigation-items-store.service';
+import { NavigationService } from './navigation.service';
+import { KeyboardService } from './keyboard.service';
 
 @NgModule({
   declarations: [
@@ -11,7 +15,7 @@ import { NavLayerDirective } from './directives/nav-layer.directive';
     NavGridDirective,
     NavFocusableDirective,
     NavRootDirective,
-    NavLayerDirective
+    NavLayerDirective,
   ],
   imports: [],
   exports: [
@@ -19,7 +23,13 @@ import { NavLayerDirective } from './directives/nav-layer.directive';
     NavGridDirective,
     NavFocusableDirective,
     NavRootDirective,
-    NavLayerDirective
+    NavLayerDirective,
+  ],
+  providers: [
+    KeyboardService,
+    NavigationService,
+    NavigationItemsStoreService
   ]
 })
 export class NgSpatialNavigationModule {}
+

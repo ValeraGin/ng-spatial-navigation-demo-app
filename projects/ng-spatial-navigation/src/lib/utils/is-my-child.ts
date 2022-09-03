@@ -1,3 +1,9 @@
-export function isMyChild<T extends { parent: T }>(me: any, child: T): boolean {
-  return child.parent === me || (child.parent && isMyChild(me, child.parent));
+export function isMyChild<
+  ParentProp extends string,
+  T extends { [key in ParentProp]: T }
+>(me: any, child: T, parentProp: ParentProp): boolean {
+  return (
+    child[parentProp] === me ||
+    (child[parentProp] && isMyChild(me, child[parentProp], parentProp))
+  );
 }

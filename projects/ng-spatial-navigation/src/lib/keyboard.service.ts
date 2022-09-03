@@ -5,13 +5,15 @@ import { KeyboardKeysEnum } from './enums/keyboard-keys.enum';
 
 const EXTREME_INTERVAL_REPEAT = 50;
 
+/** @dynamic */
 @Injectable()
 export class KeyboardService {
-
   // NOTE: if (repeatInterval < EXTREME_INTERVAL_REPEAT) then we use system repeatInterval (from event with event.repeat property)
   private repeatInterval = 0;
 
-  private pressedKeys: { [key: string]: ReturnType<typeof setInterval> | undefined } = {};
+  private pressedKeys: {
+    [key: string]: ReturnType<typeof setInterval> | undefined;
+  } = {};
 
   private needStopEvent: { [key: string]: boolean | undefined } = {};
 
@@ -23,34 +25,34 @@ export class KeyboardService {
 
   private rootElement: HTMLElement | undefined;
 
-  get elementListener() {
+  get elementListener(): HTMLElement | Document {
     if (this.rootElement) {
-      return this.rootElement
+      return this.rootElement;
     } else {
-      return this.document
+      return this.document;
     }
   }
 
   constructor(
     private zone: NgZone,
     private navigationService: NavigationService,
-    @Inject(DOCUMENT) private document: Document,
+    @Inject(DOCUMENT) private document: Document
   ) {
     this.keyDownListener = this.keyListener.bind(this, true);
     this.keyUpListener = this.keyListener.bind(this, false);
   }
 
-  setStatus(value: boolean) {
+  setStatus(value: boolean): void {
     this.isEnabled = value;
   }
 
-  deleteRoot(root: HTMLElement) {
+  deleteRoot(root: HTMLElement): void {
     this.document.removeEventListener('keydown', this.keyDownListener, true);
     this.document.removeEventListener('keyup', this.keyUpListener, true);
     this.rootElement = undefined;
   }
 
-  setRoot(root: HTMLElement, global: boolean) {
+  setRoot(root: HTMLElement, global: boolean): void {
     this.rootElement = global ? root : undefined;
     this.zone.runOutsideAngular(() => {
       this.document.addEventListener('keydown', this.keyDownListener, true);
@@ -60,45 +62,46 @@ export class KeyboardService {
 
   private doAction(code: string, isShift: boolean): boolean {
     switch (code) {
-      case "ArrowUp":
+      case 'ArrowUp':
         return this.navigationService.navigate('up');
-      case "ArrowRight":
-        return this.navigationService.navigate('right')
-      case "ArrowDown":
-        return this.navigationService.navigate('down')
-      case "ArrowLeft":
-        return this.navigationService.navigate('left')
-      case "Tab":
-        return this.navigationService.navigate(isShift ? 'tabshift' : 'tab')
-      case "Enter":
-        const nativeElement = this.navigationService.focusedNavItem?.el?.nativeElement;
+      case 'ArrowRight':
+        return this.navigationService.navigate('right');
+      case 'ArrowDown':
+        return this.navigationService.navigate('down');
+      case 'ArrowLeft':
+        return this.navigationService.navigate('left');
+      case 'Tab':
+        return this.navigationService.navigate(isShift ? 'tabshift' : 'tab');
+      case 'Enter':
+        const nativeElement =
+          this.navigationService.focusedNavItem?.el?.nativeElement;
         if (nativeElement) {
           nativeElement.click();
-          return true
+          return true;
         } else {
-          return false
+          return false;
         }
       default:
-        return false
+        return false;
     }
   }
 
-  private keyRepeat(event: KeyboardEvent) {
+  private keyRepeat(event: KeyboardEvent): void {
     this.needStopEvent[event.code] = this.doAction(event.code, event.shiftKey);
   }
 
-  private keyListener(isDown: boolean, event: KeyboardEvent) {
+  private keyListener(isDown: boolean, event: KeyboardEvent): void {
     if (!(event.keyCode in KeyboardKeysEnum) || !this.isEnabled) {
-      return
+      return;
     }
-    event.preventDefault()
+    event.preventDefault();
     const nativeRepeatMode = this.repeatInterval < EXTREME_INTERVAL_REPEAT;
-    if ((!nativeRepeatMode && event.repeat) && this.needStopEvent[event.code]) {
+    if (!nativeRepeatMode && event.repeat && this.needStopEvent[event.code]) {
       event.stopImmediatePropagation();
-      return
+      return;
     }
     if (!nativeRepeatMode && event.repeat) {
-      return
+      return;
     }
     if (!nativeRepeatMode) {
       if (isDown) {
@@ -111,7 +114,10 @@ export class KeyboardService {
          *       DOWN.......REPEAT...REPEAT...REPEAT.UP
          *       так построен оригинальный REPEAT
          */
-        this.pressedKeys[event.code] = setInterval(() => this.keyRepeat(event), this.repeatInterval)
+        this.pressedKeys[event.code] = setInterval(
+          () => this.keyRepeat(event),
+          this.repeatInterval
+        );
       } else {
         if (this.pressedKeys[event.code]) {
           clearInterval(this.pressedKeys[event.code]);
@@ -127,5 +133,4 @@ export class KeyboardService {
       event.stopImmediatePropagation();
     }
   }
-
 }

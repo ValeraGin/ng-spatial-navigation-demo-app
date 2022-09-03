@@ -1,53 +1,62 @@
-import { Directive, ElementRef, forwardRef, Inject, Input, Optional, Renderer2, SkipSelf } from '@angular/core';
+import { Directive, forwardRef, Input } from '@angular/core';
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { NavItemBaseDirective } from './nav-item-base.directive';
-import { NavigationService } from '../navigation.service';
-import { NavigationItemsStoreService } from '../navigation-items-store.service';
 import { NavItem } from '../types/nav-item.type';
-import { KeyboardService } from '../keyboard.service';
 import { CoerceBoolean } from '../decorators/coerce-boolean.decorator';
 import { Direction } from '../types/direction.type';
 import { DirectionType } from '../types/directions.type';
 import { blockNavigationToken } from '../consts/block-navigation-token.const';
 
-export function setNav(navItem: NavItem, direction: Direction, value: DirectionType) {
+export function setNav(
+  navItem: NavItem,
+  direction: Direction,
+  value: DirectionType
+): void {
   if (navItem[direction] !== blockNavigationToken) {
     navItem[direction] = value;
   }
 }
 
-export function initDirectionsList(children: NavItem[], navItem: NavItem, isHorizontal?: boolean): void  {
+export function initDirectionsList(
+  children: NavItem[],
+  navItem: NavItem,
+  isHorizontal?: boolean
+): void {
   const index = children.indexOf(navItem);
   const isFirst = index === 0;
   const isLast = index === children.length - 1;
   const prev = isFirst ? undefined : children[index - 1];
   const next = isLast ? undefined : children[index + 1];
   if (isHorizontal) {
-    setNav(navItem, 'up', undefined)
-    setNav(navItem, 'down', undefined)
-    setNav(navItem, 'left', prev)
-    setNav(navItem, 'right', next)
+    setNav(navItem, 'up', undefined);
+    setNav(navItem, 'down', undefined);
+    setNav(navItem, 'left', prev);
+    setNav(navItem, 'right', next);
     if (prev) {
-      setNav(prev, 'right', navItem)
+      setNav(prev, 'right', navItem);
     }
     if (next) {
-      setNav(next, 'left', navItem)
+      setNav(next, 'left', navItem);
     }
   } else {
-    setNav(navItem, 'left', undefined)
-    setNav(navItem, 'right', undefined)
-    setNav(navItem, 'up', prev)
-    setNav(navItem, 'down', next)
+    setNav(navItem, 'left', undefined);
+    setNav(navItem, 'right', undefined);
+    setNav(navItem, 'up', prev);
+    setNav(navItem, 'down', next);
     if (prev) {
-      setNav(prev, 'down', navItem)
+      setNav(prev, 'down', navItem);
     }
     if (next) {
-      setNav(next, 'up', navItem)
+      setNav(next, 'up', navItem);
     }
   }
 }
 
-export function removeDirectionsList(children: NavItem[], navItem: NavItem, isHorizontal?: boolean): void  {
+export function removeDirectionsList(
+  children: NavItem[],
+  navItem: NavItem,
+  isHorizontal?: boolean
+): void {
   const index = children.indexOf(navItem);
   const isFirst = index === 0;
   const isLast = index === children.length - 1;
@@ -55,46 +64,38 @@ export function removeDirectionsList(children: NavItem[], navItem: NavItem, isHo
   const next = isLast ? undefined : children[index + 1];
   if (isHorizontal) {
     if (prev) {
-      setNav(prev, 'right', next)
+      setNav(prev, 'right', next);
     }
     if (next) {
-      setNav(next, 'left', prev)
+      setNav(next, 'left', prev);
     }
   } else {
     if (prev) {
-      setNav(prev, 'down', next)
+      setNav(prev, 'down', next);
     }
     if (next) {
-      setNav(next, 'up', prev)
+      setNav(next, 'up', prev);
     }
   }
 }
 
 @Directive({
   selector: '[navList]',
-  providers: [{provide: NAV_ITEM_TOKEN, useExisting: forwardRef(() => NavListDirective)}]
+  providers: [
+    {
+      provide: NAV_ITEM_TOKEN,
+      useExisting: forwardRef(() => NavListDirective),
+    },
+  ],
 })
 export class NavListDirective extends NavItemBaseDirective {
-
   @CoerceBoolean() @Input() horizontal: boolean | string | undefined;
 
-  constructor(
-    @Optional() @SkipSelf() @Inject(NAV_ITEM_TOKEN) public parent: NavItem,
-    public navigationService: NavigationService,
-    public navigationItemsStoreService: NavigationItemsStoreService,
-    public keyboardService: KeyboardService,
-    public renderer: Renderer2,
-    public el: ElementRef<HTMLElement>
-  ) {
-    super()
-  }
-
   initDirections(navItem: NavItem): void {
-    return initDirectionsList(this.children, navItem, !!this.horizontal)
+    return initDirectionsList(this.children, navItem, !!this.horizontal);
   }
 
   removeDirections(navItem: NavItem): void {
-    return removeDirectionsList(this.children, navItem, !!this.horizontal)
+    return removeDirectionsList(this.children, navItem, !!this.horizontal);
   }
-
 }

@@ -3,6 +3,8 @@
  */
 export * from './lib/ng-spatial-navigation.module';
 
+export * from './lib/ng-spatial-navigation.service';
+
 export * from './lib/directives/nav-focusable.directive';
 export * from './lib/directives/nav-grid.directive';
 export * from './lib/directives/nav-list.directive';
