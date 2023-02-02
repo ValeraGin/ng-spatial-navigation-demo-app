@@ -11,27 +11,28 @@ export class KeyboardService {
   // NOTE: if (repeatInterval < EXTREME_INTERVAL_REPEAT) then we use system repeatInterval (from event with event.repeat property)
   private repeatInterval = 0;
 
+  /**
+   * Список нажатых клавиш
+   */
   private pressedKeys: {
     [key: string]: ReturnType<typeof setInterval> | undefined;
   } = {};
 
+  /**
+   * Список клавиш действие которых нужно остановить (stopPropagation)
+   */
   private needStopEvent: { [key: string]: boolean | undefined } = {};
 
+  /**
+   * флаг включения/выключения обработки клавиш
+   */
   private isEnabled = true;
 
   private readonly keyDownListener: (event: KeyboardEvent | any) => void;
 
   private readonly keyUpListener: (event: KeyboardEvent | any) => void;
 
-  private rootElement: HTMLElement | undefined;
-
-  get elementListener(): HTMLElement | Document {
-    if (this.rootElement) {
-      return this.rootElement;
-    } else {
-      return this.document;
-    }
-  }
+  private documentListenerCount = 0;
 
   constructor(
     private zone: NgZone,
@@ -46,33 +47,42 @@ export class KeyboardService {
     this.isEnabled = value;
   }
 
-  deleteRoot(root: HTMLElement): void {
-    this.document.removeEventListener('keydown', this.keyDownListener, true);
-    this.document.removeEventListener('keyup', this.keyUpListener, true);
-    this.rootElement = undefined;
+  deleteRoot(root: HTMLElement, global: boolean): void {
+    const elementForListen = global ? this.document : root;
+    if (global) {
+      this.documentListenerCount--;
+    }
+    elementForListen.removeEventListener('keydown', this.keyDownListener, true);
+    elementForListen.removeEventListener('keyup', this.keyUpListener, true);
   }
 
   setRoot(root: HTMLElement, global: boolean): void {
-    this.rootElement = global ? root : undefined;
+    const elementForListen = global ? this.document : root;
+    if (global) {
+      this.documentListenerCount++;
+    }
+    if (this.documentListenerCount > 1) {
+      console.warn('More than one root listener is defined! It can cause problems. May be you need to add global parameter?');
+    }
     this.zone.runOutsideAngular(() => {
-      this.document.addEventListener('keydown', this.keyDownListener, true);
-      this.document.addEventListener('keyup', this.keyUpListener, true);
+      elementForListen.addEventListener('keydown', this.keyDownListener, true);
+      elementForListen.addEventListener('keyup', this.keyUpListener, true);
     });
   }
 
-  private doAction(code: string, isShift: boolean): boolean {
-    switch (code) {
-      case 'ArrowUp':
+  private doAction(keyCode: number, isShift: boolean): boolean {
+    switch (keyCode) {
+      case KeyboardKeysEnum.UP:
         return this.navigationService.navigate('up');
-      case 'ArrowRight':
+      case KeyboardKeysEnum.RIGHT:
         return this.navigationService.navigate('right');
-      case 'ArrowDown':
+      case KeyboardKeysEnum.DOWN:
         return this.navigationService.navigate('down');
-      case 'ArrowLeft':
+      case KeyboardKeysEnum.LEFT:
         return this.navigationService.navigate('left');
-      case 'Tab':
+      case KeyboardKeysEnum.TAB:
         return this.navigationService.navigate(isShift ? 'tabshift' : 'tab');
-      case 'Enter':
+      case KeyboardKeysEnum.ENTER:
         const nativeElement =
           this.navigationService.focusedNavItem?.el?.nativeElement;
         if (nativeElement) {
@@ -87,7 +97,7 @@ export class KeyboardService {
   }
 
   private keyRepeat(event: KeyboardEvent): void {
-    this.needStopEvent[event.code] = this.doAction(event.code, event.shiftKey);
+    this.needStopEvent[event.code] = this.doAction(event.keyCode, event.shiftKey);
   }
 
   private keyListener(isDown: boolean, event: KeyboardEvent): void {
@@ -128,7 +138,7 @@ export class KeyboardService {
     if (!isDown) {
       return;
     }
-    this.needStopEvent[event.code] = this.doAction(event.code, event.shiftKey);
+    this.needStopEvent[event.code] = this.doAction(event.keyCode, event.shiftKey);
     if (this.needStopEvent[event.code]) {
       event.stopImmediatePropagation();
     }

@@ -5,16 +5,15 @@ import { NavItem } from '../types/nav-item.type';
 import { CoerceBoolean } from '../decorators/coerce-boolean.decorator';
 import { Direction } from '../types/direction.type';
 import { DirectionType } from '../types/directions.type';
-import { blockNavigationToken } from '../consts/block-navigation-token.const';
 
 export function setNav(
   navItem: NavItem,
   direction: Direction,
   value: DirectionType
 ): void {
-  if (navItem[direction] !== blockNavigationToken) {
+  //if (!isBlockNavigation(navItem[direction])) {
     navItem[direction] = value;
-  }
+  //}
 }
 
 export function initDirectionsList(
@@ -88,7 +87,25 @@ export function removeDirectionsList(
     },
   ],
 })
+/**
+ * Элемент списка
+ *
+ * Он может быть либо горизонтальным, либо вертикальным. Это определяется атрибутом horizontal.
+ *
+ * Все элементы ведут себя как список (это их родительский класс) кроме грида
+ *
+ * @example
+ * <div navList>
+ *   <div navItem>1</div>
+ *   <div navItem>2</div>
+ *   <div navItem>3</div>
+ *   <div navItem>4</div>
+ * </div>
+ */
 export class NavListDirective extends NavItemBaseDirective {
+  /**
+   * Если true, то навигация будет горизонтальной (кнопки влево/вправо)
+   */
   @CoerceBoolean() @Input() horizontal: boolean | string | undefined;
 
   initDirections(navItem: NavItem): void {

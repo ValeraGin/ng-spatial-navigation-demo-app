@@ -1,3 +1,8 @@
+/**
+ * Получает родителей элемента включая сам элемент
+ *
+ * @param item - элемент
+ */
 function getParentsWithItem<T extends { parent: T }>(item: T): T[] {
   if (!item) {
     return [];
@@ -6,6 +11,16 @@ function getParentsWithItem<T extends { parent: T }>(item: T): T[] {
   }
 }
 
+/**
+ * Находит общего родителя для элементов
+ *
+ * @param args - элементы для поиска общего родителя
+ *
+ * @returns общий родитель или undefined, если общего родителя нет
+ *
+ * @example
+ * const commonParent = findCommonParent(item1, item2, item3);
+ */
 export function findCommonParent<T extends { parent: T }>(
   ...args: T[]
 ): T | undefined {

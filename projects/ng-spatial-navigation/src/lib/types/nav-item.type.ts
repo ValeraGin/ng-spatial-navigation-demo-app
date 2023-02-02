@@ -11,8 +11,17 @@ export type NavItem =
   | NavRootDirective
   | NavLayerDirective;
 
+/**
+ * Элементы, которые могут быть в фокусе
+ */
 export type FocusableNavItem = NavFocusableDirective;
 
+/**
+ * Слои
+ */
 export type LayerNavItem = NavLayerDirective | NavRootDirective;
 
+/**
+ * Корневые элементы
+ */
 export type RootNavItem = NavRootDirective;

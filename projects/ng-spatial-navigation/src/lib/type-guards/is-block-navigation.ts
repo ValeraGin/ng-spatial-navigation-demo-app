@@ -1,8 +1,12 @@
 import { BlockNavigation, DirectionType } from '../types/directions.type';
-import { blockNavigationToken } from '../consts/block-navigation-token.const';
 
+/**
+ * Проверяет, является ли направление блокировкой
+ *
+ * @param direction - направление для проверки
+ */
 export function isBlockNavigation(
   direction: DirectionType
 ): direction is BlockNavigation {
-  return typeof direction === 'object' && 'blockNavigationToken' in direction;
+  return typeof direction === 'object' && 'type' in direction && direction.type === 'block'
 }

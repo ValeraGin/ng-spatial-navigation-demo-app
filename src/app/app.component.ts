@@ -10,12 +10,13 @@ export class AppComponent {
 
   title = 'ng-spatial-navigation-demo-app';
 
-  items  = Array.from({length: 15}).map((_, i) => i + 1 );
+  items = Array.from({length: 15}).map((_, i) => i + 1);
   navEnabled: any;
 
   showGrid: boolean = false;
 
-  constructor(private http: HttpClient ) {}
+  constructor(private http: HttpClient) {
+  }
 
   ngOnInit(): void {
 
@@ -31,4 +32,7 @@ export class AppComponent {
     console.log(this.items)
   }
 
+  addItem(item: number) {
+    this.items.splice(this.items.indexOf(item) + 1, 0, item + 100);
+  }
 }

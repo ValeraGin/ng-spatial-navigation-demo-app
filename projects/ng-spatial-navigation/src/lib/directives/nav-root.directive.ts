@@ -17,29 +17,78 @@ import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
     },
   ],
 })
+/**
+ * Директива корневого элемента
+ *
+ * Корневой элемент обязателен и он должен быть один и выше всех остальных элементов
+ *
+ * Если так произошло что внутри корневого элемента есть другой корневой элемент, то он становится просто слоем
+ */
 export class NavRootDirective extends NavLayerDirective {
+
+  /**
+   * Список всех корневых элемент
+   *
+   * В теории можно сделать несколько корневых элементов, но это не реализовано и заблокировано
+   * Любой корневой элемент внутри другого корневого элемента превращается в слой первого,
+   * сделано так для того, чтобы например в библиотеке можно было использовать корневой элемент,
+   * так как библиотека не уверена что её основное приложение уже использует навигацию
+   */
   static roots: NavRootDirective[] = [];
 
-  @Input() isKeyboardNavigationEnabled = true;
+  /**
+   * Включает или отключает навигацию по клавиатуре
+   *
+   * Но если есть другой рут элемент то навигация будет работать только на нем
+   */
+  @CoerceBoolean() @Input() isKeyboardNavigationEnabled : string | boolean = true;
 
-  @CoerceBoolean() @Input() noGlobal: string | boolean = true;
+  /**
+   * Если установлен флаг то будут слушаться события только на этом элементе а не на всем документе
+   *
+   * NOTE: необходимо чтобы фокус был внутри элемента, а это означает что нужно все фокусируемые
+   * элементы делать с реальным фокусом что плохо для производительности. Поэтому этот флаг нельзя использовать!
+   * Но в теории он может пригодится!
+   *
+   * Нельзя менять в процессе работы! Должен быть константой!
+   */
+  @CoerceBoolean() @Input() noGlobal: string | boolean = false;
+
+  /**
+   * Флаг который говорит что мы только слой, а не корневой элемент
+   */
+  private imFakeRoot = false;
 
   override ngAfterContentInit(): void {
     super.ngAfterContentInit();
-    this.keyboardService.setRoot(this.el.nativeElement, !!this.noGlobal);
+    if (NavRootDirective.roots.length > 0) {
+      // Если есть другой рут элемент, то мы говорим что мы только слой а не корневой элемент,
+      // но если мы одни, то значит мы корневой элемент
+      this.imFakeRoot = true;
+      return;
+    }
+    this.keyboardService.setRoot(this.el.nativeElement, !this.noGlobal);
+    NavRootDirective.roots.push(this);
   }
 
   override ngOnChanges(changes: SimpleChanges): void {
     super.ngOnChanges(changes);
-    if (changes['isKeyboardNavigationEnabled']) {
-      this.keyboardService.setStatus(
-        changes['isKeyboardNavigationEnabled'].currentValue
-      );
+    // Если мы не настоящий корневой элемент, то ничего не делаем
+    if (!this.imFakeRoot) {
+      if (changes['isKeyboardNavigationEnabled']) {
+        this.keyboardService.setStatus(
+          changes['isKeyboardNavigationEnabled'].currentValue
+        );
+      }
     }
   }
 
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    this.keyboardService.deleteRoot(this.el.nativeElement);
+    // Если мы не настоящий корневой элемент, то ничего не делаем
+    if (!this.imFakeRoot) {
+      this.keyboardService.deleteRoot(this.el.nativeElement, !this.noGlobal);
+      NavRootDirective.roots = NavRootDirective.roots.filter((root) => root !== this);
+    }
   }
 }

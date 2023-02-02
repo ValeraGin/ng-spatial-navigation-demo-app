@@ -25,31 +25,73 @@ import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
 
 @Directive()
+/**
+ * Базовый класс для всех элементов навигации
+ */
 export abstract class NavItemBaseDirective
-  implements OnDestroy, OnChanges, AfterContentInit, Directions
-{
+  implements OnDestroy, OnChanges, AfterContentInit, Directions {
+  /**
+   * Идентификатор элемента навигации
+   */
   @Input() id: string | undefined;
 
+  /**
+   * Направление навигации вверх
+   */
   @Input() up: DirectionType;
 
+  /**
+   * Направление навигации вправо
+   */
   @Input() right: DirectionType;
 
+  /**
+   * Направление навигации вниз
+   */
   @Input() down: DirectionType;
 
+  /**
+   * Направление навигации влево
+   */
   @Input() left: DirectionType;
 
+  /**
+   * Направление навигации по Tab
+   */
   @Input() tab: DirectionType;
 
+  /**
+   * Направление навигации по Shift + Tab
+   */
   @Input() tabshift: DirectionType;
 
+  /**
+   * Кастомный tabindex на элемент, чтобы менять последовательность навигации
+   */
   @Input() tabIndex = -1;
 
+  /**
+   * элемент, который был активен до ухода из фокуса в списке дочерних элементов
+   */
   memory?: NavItem;
 
+  /**
+   * список дочерних элементов
+   */
   protected children: NavItem[] = [];
 
+  /**
+   * Родитель устанавливает направления для потомка
+   *
+   * Обычно это происходит при появлении потомка
+   */
   abstract initDirections(navItem: NavItem): void;
 
+  /**
+   * Родитель удаляет направления для потомка
+   *
+   * Обычно это происходит при уничтожении потомка
+   */
   abstract removeDirections(navItem: NavItem): void;
 
   constructor(
@@ -66,7 +108,8 @@ export abstract class NavItemBaseDirective
     @SkipSelf()
     @Inject(NAV_LAYER_TOKEN)
     public parentLayer: LayerNavItem
-  ) {}
+  ) {
+  }
 
   childFocusReceive(child: NavItem): void {
     this.memory = child;
@@ -75,7 +118,7 @@ export abstract class NavItemBaseDirective
     }
   }
 
-  childFocusLost(child: NavItem, nextFocus: FocusableNavItem): void {
+  childFocusLost(child: NavItem, nextFocus: FocusableNavItem | undefined): void {
     if (this.parent && !isMyChild(this, child, 'parent')) {
       this.parent.childFocusLost(this, nextFocus);
     }
@@ -84,7 +127,10 @@ export abstract class NavItemBaseDirective
   registerChild(navItem: NavItem): void {
     this.children.push(navItem);
     this.children.sort(
-      (a, b) => a.el.nativeElement.offsetTop - b.el.nativeElement.offsetTop
+      (a, b) =>
+        // смотрим сначала кто выше, потом кто левее (если они на одном уровне)
+        // рассчет происходит только один раз при регистрации потомка
+        a.el.nativeElement.offsetTop - b.el.nativeElement.offsetTop || a.el.nativeElement.offsetLeft - b.el.nativeElement.offsetLeft
     );
     this.initDirections(navItem);
   }
@@ -125,6 +171,10 @@ export abstract class NavItemBaseDirective
     this.navigationService.afterContentInitNavItem(this);
   }
 
+  /**
+   * Поиск элемента, который должен получить фокус после удаления элемента
+   * @param deletedItem - удаленный элемент
+   */
   findReplace(deletedItem: NavItem): NavItem | undefined {
     if (this.children.length < 2) {
       return undefined;
@@ -139,6 +189,9 @@ export abstract class NavItemBaseDirective
     }
   }
 
+  /**
+   * Поиск элемента, который должен получить фокус
+   */
   findFocus(): FocusableNavItem | undefined {
     const listFindFocus = (): FocusableNavItem | undefined => {
       for (const item of this.children) {

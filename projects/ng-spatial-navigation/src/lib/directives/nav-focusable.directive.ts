@@ -19,17 +19,43 @@ import { NavListDirective } from './nav-list.directive';
     },
   ],
 })
+/**
+ * Директива, которая делает элемент навигационным
+ * @example
+ * <div navFocusable> Элемент, который может принять фокус </div>
+ */
 export class NavFocusableDirective extends NavListDirective {
+
+  /**
+   * Функция, которая вызывается перед тем как фокус будет передан на этот элемент
+   */
   @Input() willFocus: ((prevElement: HTMLElement) => boolean) | undefined;
 
+  /**
+   * Функция, которая вызывается перед тем как фокус будет передан с этого элемента
+   */
   @Input() willUnFocus: ((nextElement: HTMLElement) => boolean) | undefined;
 
+  /**
+   * Событие, которое вызывается когда элемент, получает фокус
+   */
   @Output() vFocus = new EventEmitter();
 
+  /**
+   * Событие, которое вызывается когда элемент, теряет фокус
+   */
   @Output() vBlur = new EventEmitter();
 
+  /**
+   * Флаг, который показывает находиться ли элемент в фокусе
+   */
   focused: boolean | undefined;
 
+  /**
+   * Функция, которая вызывается перед уничтожением элемента когда он находится в фокусе
+   *
+   * Нужно чтобы не потерять фокус при уничтожении элемента в фокусе
+   */
   private beforeDestroy: (() => void) | undefined;
 
   @HostListener('mousedown', ['$event'])
@@ -54,7 +80,7 @@ export class NavFocusableDirective extends NavListDirective {
     this.renderer.addClass(this.el.nativeElement, 'focused');
   }
 
-  unsetFocus(nextFocus: FocusableNavItem): void {
+  unsetFocus(nextFocus?: FocusableNavItem): void {
     this.beforeDestroy = undefined;
     this.focused = false;
     this.vBlur.emit();

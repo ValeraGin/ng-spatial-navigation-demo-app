@@ -11,19 +11,35 @@ import { debugLog } from './utils/debug';
 import scrollIntoView from 'scroll-into-view-if-needed';
 
 /**
- * When the elements start to appear on the page on the same page,
- * it waits for it to be formed and only then it is applied
+ * Время, которое дается элементам на отрисовку до передачи им фокуса (в миллисекундах)
+ *
+ * Если этого времени не достаточно и вы хотите ждать появления определенного элемента,
+ * то используйте метод `waitForElement`
  */
 export const TIME_DEBOUNCE_FOCUS_IN_MS = 200;
 
 @Injectable()
 export class NavigationService {
+
   focusedNavItem: FocusableNavItem | undefined;
 
+  /**
+   * Статус фокуса
+   */
   private status: FocusStatus = 'waiting';
 
+  /**
+   * Идентификатор элемента, на который нужно перевести фокус когда он появится
+   */
   private waitingId: string | undefined;
 
+  /**
+   * Список элементов, которые попадают в так называемый арбитраж на выбор кого фокусировать
+   * Это происходит, когда несколько элементов находятся на одном уровне
+   * и одновременно появляются на странице и фокуса до этого не было.
+   *
+   * Например, при старте приложения или при загрузке страницы когда нет других фокусируемых элементов
+   */
   private navItemsForCheckFocus: NavItem[] = [];
 
   constructor(
@@ -169,6 +185,25 @@ export class NavigationService {
       }
     }
     return false;
+  }
+
+  /**
+   * Снимает фокус если он есть и переводит в режим ожидания элемента
+   *
+   * @param id - айдишник элемента который нужно передать фокус
+   *
+   * @description ОСТОРОЖНО! Если элемента с таким идентификатором не найдется,
+   * то вы потеряете фокус, так что осторожнее с этим методом
+   */
+  waitForElement(id: string): void {
+    if (this.status === 'default') {
+      if (this.focusedNavItem) {
+        this.focusedNavItem.unsetFocus();
+      }
+      this.focusedNavItem = undefined;
+    }
+    this.status = 'waiting_id';
+    this.waitingId = id;
   }
 
   afterContentInitNavItem(navItem: NavItem): void {

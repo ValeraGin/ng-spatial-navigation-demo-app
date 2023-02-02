@@ -4,7 +4,6 @@ import { NavFocusableDirective } from './directives/nav-focusable.directive';
 import { NavGridDirective } from './directives/nav-grid.directive';
 import { NavRootDirective } from './directives/nav-root.directive';
 import { NavLayerDirective } from './directives/nav-layer.directive';
-import { NgSpatialNavigationService } from './ng-spatial-navigation.service';
 import { NavigationItemsStoreService } from './navigation-items-store.service';
 import { NavigationService } from './navigation.service';
 import { KeyboardService } from './keyboard.service';
@@ -31,5 +30,62 @@ import { KeyboardService } from './keyboard.service';
     NavigationItemsStoreService
   ]
 })
+/**
+ * Модуль для работы с навигацией по элементам
+ *
+ * @example
+ *
+ * // app.module.ts
+ *
+ * import { NgSpatialNavigationModule } from 'ng-spatial-navigation';
+ *
+ * \@NgModule({
+ *  declarations: [
+ *    AppComponent
+ *  ],
+ *  imports: [
+ *    BrowserModule,
+ *    NgSpatialNavigationModule
+ *  ],
+ *  providers: [],
+ *  bootstrap: [AppComponent]
+ *  })
+ *  export class AppModule { }
+ *
+ *  // app.component.ts
+ *
+ *  import { Component } from '@angular/core';
+ *  import { NavigationService } from 'ng-spatial-navigation';
+ *
+ *  \@Component({
+ *    selector: 'app-root',
+ *    templateUrl: './app.component.html',
+ *    styleUrls: ['./app.component.scss']
+ *  })
+ *  export class AppComponent {
+ *    title = 'app';
+ *
+ *  constructor(
+ *    private navigationService: NgSpatialNavigationService // just for DI example
+ *  ) {}
+ *
+ *  // app.component.html
+ *
+ *  <div navGrid>
+ *    <div navFocusable>1</div>
+ *    <div navFocusable>2</div>
+ *    <div navFocusable>3</div>
+ *    <div navFocusable>4</div>
+ *    <div navFocusable>5</div>
+ *  </div>
+ *
+ *  // app.component.scss
+ *
+ *   // when element is focused it will have class 'focused' not pseudo-class :focus
+ *  .focused {
+ *    outline: 1px solid red;
+ *  }
+ *
+ */
 export class NgSpatialNavigationModule {}
 

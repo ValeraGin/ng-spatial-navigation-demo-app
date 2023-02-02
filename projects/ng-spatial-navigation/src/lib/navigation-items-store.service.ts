@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { NavItem } from './types/nav-item.type';
-import { debugLog } from './utils/debug';
 
 @Injectable()
 export class NavigationItemsStoreService {
-  navItems: Record<string, NavItem> = {};
+  private navItems: Record<string, NavItem> = {};
 
   getNavItemByElement(element: HTMLElement): NavItem | undefined {
     return Object.values(this.navItems).find(

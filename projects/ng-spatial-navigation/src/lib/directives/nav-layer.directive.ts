@@ -2,8 +2,14 @@ import { Directive, forwardRef } from '@angular/core';
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { NavItem } from '../types/nav-item.type';
 import { NavListDirective } from './nav-list.directive';
-import { blockNavigationToken } from '../consts/block-navigation-token.const';
+
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
+import { BlockNavigation } from "../types/directions.type";
+
+const layerBlockNavigationToken: BlockNavigation = {
+  type: 'block',
+  reason: 'Вы находитесь в слое и поэтому вам нельзя из него выходить через навигацию вверх, вниз, влево или вправо'
+};
 
 @Directive({
   selector: '[navLayer]',
@@ -19,13 +25,13 @@ import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
   ],
 })
 export class NavLayerDirective extends NavListDirective {
-  override up = blockNavigationToken;
+  override up = layerBlockNavigationToken;
 
-  override right = blockNavigationToken;
+  override right = layerBlockNavigationToken;
 
-  override down = blockNavigationToken;
+  override down = layerBlockNavigationToken;
 
-  override left = blockNavigationToken;
+  override left = layerBlockNavigationToken;
 
   prevMemory?: NavItem;
 
