@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { NgSpatialNavigationService } from "ng-spatial-navigation";
+import { Location } from '@angular/common'
 
 @Component({
   selector: 'app-root',
@@ -6,7 +8,20 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  log(blur: string) {
-    console.log(blur)
+
+  constructor(
+    private ngSpatialNavigationService: NgSpatialNavigationService,
+    private location: Location
+  ) {
+    ngSpatialNavigationService.setBackUnhandledCallback(() => {
+      // if (confirm('Хотите выйти?')) {
+      //   window.close(); // or another way to close the app - it was just an example
+      //   alert('Приложение закрыто')
+      // } else {
+        // Если мы на другой странице, то возвращаемся на уровень назад
+        location.back();
+      //}
+    })
   }
+
 }

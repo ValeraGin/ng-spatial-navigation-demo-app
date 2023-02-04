@@ -44,18 +44,18 @@ export class NavRootDirective extends NavLayerDirective {
   @CoerceBoolean() @Input() isKeyboardNavigationEnabled : string | boolean = true;
 
   /**
-   * Если установлен флаг то будут слушаться события только на этом элементе а не на всем документе
+   * Если установлен флаг, то будут слушаться события только на этом элементе, а не на всем документе
    *
-   * NOTE: необходимо чтобы фокус был внутри элемента, а это означает что нужно все фокусируемые
+   * NOTE: необходимо чтобы фокус быть внутри элемента, а это означает что нужно все фокусируемые
    * элементы делать с реальным фокусом что плохо для производительности. Поэтому этот флаг нельзя использовать!
-   * Но в теории он может пригодится!
+   * Но в теории он может пригодиться!
    *
    * Нельзя менять в процессе работы! Должен быть константой!
    */
   @CoerceBoolean() @Input() noGlobal: string | boolean = false;
 
   /**
-   * Флаг который говорит что мы только слой, а не корневой элемент
+   * Флаг, который говорит что мы только слой, а не корневой элемент
    */
   private imFakeRoot = false;
 
@@ -92,3 +92,9 @@ export class NavRootDirective extends NavLayerDirective {
     }
   }
 }
+
+// global debug - show all nodes
+// @ts-ignore
+// window['showAllNavNodes'] = () => NavRootDirective.roots.forEach((root) => {
+//   root.logTree()
+// });

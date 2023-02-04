@@ -46,6 +46,17 @@ export class NgSpatialNavigationService {
     return this.navigationService.focusedNavItem?.el?.nativeElement;
   }
 
+  back(): void {
+    this.navigationService.back();
+  }
+
+  /**
+   * Когда пользователь нажимает кнопку назад, но навигация не может обработать это событие
+   */
+  setBackUnhandledCallback(cb: () => void): void {
+    this.navigationService.backCallBack = cb;
+  }
+
   /**
    * Устанавливает фокус на элемент
    *

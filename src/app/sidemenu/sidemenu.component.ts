@@ -8,16 +8,23 @@ import { Component, OnInit } from '@angular/core';
 export class SidemenuComponent implements OnInit {
 
     items = [
-      { title: 'Home', link: '/home' },
-      { title: 'Movies', link: '/movies' },
-      { title: 'TV Shows', link: '/tv-shows' },
-      { title: 'My List', link: '/my-list' },
-      { title: 'Kids', link: '/kids' },
-      { title: 'DVD', link: '/dvd' },
+      { title: 'Гланая', link: '/main', queryParams: { type: 'main' } },
+      { title: 'Фильмы', link: '/main', queryParams: { type: 'movies' } },
+      { title: 'Сериалы', link: '/main', queryParams: { type: 'tvs' } },
+      { title: 'Профиль', link: '/profile', queryParams: {  } },
+      { title: 'Карточка фильма', link: '/movie-card', queryParams: {  } },
     ];
 
     constructor() { }
 
     ngOnInit(): void {
     }
+
+  fullscreenToggle() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      document.documentElement.requestFullscreen();
+    }
+  }
 }

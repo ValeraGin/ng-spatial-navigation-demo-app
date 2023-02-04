@@ -1,10 +1,8 @@
 import {
   Directive,
-  EventEmitter,
   forwardRef,
   HostListener,
   Input,
-  Output,
 } from '@angular/core';
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { FocusableNavItem } from '../types/nav-item.type';

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NavItem } from './types/nav-item.type';
+import { deleteByValue } from "./utils/delete-by-value";
 
 @Injectable()
 export class NavigationItemsStoreService {
@@ -16,23 +17,21 @@ export class NavigationItemsStoreService {
   }
 
   addNavItem(navItem: NavItem): void {
-    if (navItem.id) {
-      this.navItems[navItem.id] = navItem;
+    const id = navItem.navId || navItem.el.nativeElement.id;
+    if (id && !this.navItems[id]) {
+      this.navItems[id] = navItem;
     }
   }
 
   removeNavItem(navItem: NavItem): void {
-    if (navItem.id) {
-      delete this.navItems[navItem.id];
+    const id = navItem.navId || navItem.el.nativeElement.id;
+    if (id) {
+      delete this.navItems[id];
     }
   }
 
-  changeNavItemId(navItem: NavItem, prevId?: string): void {
-    if (prevId) {
-      delete this.navItems[prevId];
-    }
-    if (navItem.id) {
-      this.navItems[navItem.id] = navItem;
-    }
+  changedNavItemId(navItem: NavItem): void {
+    deleteByValue(this.navItems, navItem);
+    this.addNavItem(navItem)
   }
 }

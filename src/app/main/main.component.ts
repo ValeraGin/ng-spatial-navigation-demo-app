@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Movie, MovieResponse } from "./movie.interface";
+import { map, mergeMap, Observable, tap, zip } from "rxjs";
+import { ActivatedRoute } from "@angular/router";
+import { MainService } from "./main.service";
 
 @Component({
   selector: 'app-main',
@@ -9,21 +12,22 @@ import { Movie, MovieResponse } from "./movie.interface";
 })
 export class MainComponent {
 
-  movies: Movie[] = [];
+  lines$: Observable<{ title: string, data: Movie[] }[]>;
 
   getPosterUrl(path: string) {
     return `https://image.tmdb.org/t/p/w500${path}`
   }
 
-  constructor(private http: HttpClient) {
-    this.fetchData();
+  constructor(
+    private http: HttpClient,
+    private activatedRoute: ActivatedRoute,
+    private mainService: MainService,
+  ) {
+    this.lines$ = this.activatedRoute.queryParams.pipe(
+      map((params) => params['type'] as string),
+      mergeMap((type) => this.mainService.getLinesByType(type as any)),
+    );
   }
 
-  private fetchData() {
-    this.http.get<MovieResponse>('https://api.themoviedb.org/3/movie/now_playing?api_key=4ef0d7355d9ffb5151e987764708ce96&language=en-US&page=1')
-      .subscribe((data) => {
-        this.movies = data.results;
-      });
-  }
 
 }

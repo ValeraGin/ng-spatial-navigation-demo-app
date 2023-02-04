@@ -7,6 +7,7 @@ import { NavLayerDirective } from './directives/nav-layer.directive';
 import { NavigationItemsStoreService } from './navigation-items-store.service';
 import { NavigationService } from './navigation.service';
 import { KeyboardService } from './keyboard.service';
+import { NgSpatialNavigationService } from "./ng-spatial-navigation.service";
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { KeyboardService } from './keyboard.service';
   providers: [
     KeyboardService,
     NavigationService,
-    NavigationItemsStoreService
+    NavigationItemsStoreService,
+    NgSpatialNavigationService
   ]
 })
 /**

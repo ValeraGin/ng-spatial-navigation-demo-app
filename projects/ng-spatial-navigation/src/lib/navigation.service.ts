@@ -24,6 +24,11 @@ export class NavigationService {
   focusedNavItem: FocusableNavItem | undefined;
 
   /**
+   * Колбек для обработки нажатия кнопки назад внутри приложения, когда не смогли сами обработать
+   */
+  backCallBack: (() => void) | undefined;
+
+  /**
    * Статус фокуса
    */
   private status: FocusStatus = 'waiting';
@@ -72,10 +77,11 @@ export class NavigationService {
   }
 
   focus(navItem: FocusableNavItem): boolean {
+    console.trace(navItem.el.nativeElement, this.focusedNavItem?.el.nativeElement);
     if (navItem === this.focusedNavItem) {
       return true;
     }
-    debugLog(`move focus to element with id=${navItem.id}`);
+    debugLog(`move focus to element with id=${navItem.navId}`);
     if (this.focusedNavItem) {
       this.focusedNavItem.unsetFocus(navItem);
     }
@@ -92,10 +98,29 @@ export class NavigationService {
 
     //this.focusedNavItem.el.nativeElement.scrollIntoView();
 
-    this.focusedNavItem.el.nativeElement.focus();
+    //this.focusedNavItem.el.nativeElement.focus();
     this.focusedNavItem.setFocus(() => this.focusedElementDestroyed());
     this.status = 'default';
     return true;
+  }
+
+  back(currentElement?: NavItem): boolean {
+    currentElement = currentElement || this.focusedNavItem;
+    const backNavItem = currentElement && currentElement.findBackward()
+    if (backNavItem) {
+      const findFocus = backNavItem.findFocus();
+      // Проверяем на зацикленность и то, что он вообще может принять фокус
+      if (findFocus && findFocus !== currentElement && findFocus) {
+        return this.focus(findFocus);
+      } else if (backNavItem.parent) {
+        return this.back(backNavItem.parent);
+      }
+    }
+    if (this.backCallBack) {
+      this.backCallBack();
+      return true;
+    }
+    return false;
   }
 
   focusedElementDestroyed(): void {
@@ -120,8 +145,16 @@ export class NavigationService {
 
     if (this.focusedNavItem) {
       const replaceNavItem = findReplaceRecursive(this.focusedNavItem);
-      if (replaceNavItem) {
+      if (replaceNavItem && replaceNavItem !== this.focusedNavItem) {
+        console.log('Найден элемент для замены фокуса', replaceNavItem.el.nativeElement);
         this.focus(replaceNavItem);
+      } else {
+        // Произошло самое страшное - фокус ушел в никуда
+        // Это нормально и этого не стоит бояться, так как когда появится элемент,
+        // который может принять фокус, он будет найден
+        console.log('Фокус ушел в никуда');
+        this.focusedNavItem = undefined;
+        this.status = 'waiting';
       }
     }
   }
@@ -217,7 +250,7 @@ export class NavigationService {
     } else if (
       this.status === 'waiting_id' &&
       this.waitingId &&
-      this.waitingId === navItem.id
+      this.waitingId === navItem.navId
     ) {
       this.focusWithFind(navItem);
     }

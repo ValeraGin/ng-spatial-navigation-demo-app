@@ -23,7 +23,7 @@ import { KeyboardService } from '../keyboard.service';
 import { isMyChild } from '../utils/is-my-child';
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
-import { NavFocusableDirective } from "./nav-focusable.directive";
+import { CoerceBoolean } from "../decorators/coerce-boolean.decorator";
 
 @Directive()
 /**
@@ -34,7 +34,7 @@ export abstract class NavItemBaseDirective
   /**
    * Идентификатор элемента навигации
    */
-  @Input() id: string | undefined;
+  @Input() navId: string | undefined;
 
   /**
    * Направление навигации вверх
@@ -65,6 +65,9 @@ export abstract class NavItemBaseDirective
    * Направление навигации по Shift + Tab
    */
   @Input() tabshift: DirectionType;
+
+
+  @CoerceBoolean() @Input() back: boolean | string | undefined;
 
   /**
    * Кастомный tabindex на элемент, чтобы менять последовательность навигации
@@ -148,7 +151,7 @@ export abstract class NavItemBaseDirective
   childFocusReceive(child: NavItem): void {
     this.memory = child;
     if (this.hasFocus) {
-      // we already have focus - do nothing
+      // мы уже имеем фокус - ничего не делаем
       return
     }
     this.setHasFocus();
@@ -156,11 +159,12 @@ export abstract class NavItemBaseDirective
 
   childFocusLost(child: NavItem, nextFocus: FocusableNavItem | undefined): void {
     if (!this.hasFocus) {
-      console.error(this.id, 'we do not have focus, but we lost it - possible bug')
+      console.error(this.navId, 'мы не имеем фокуса, но потомок потерял фокус - это баг')
       return
     }
     if (nextFocus && isMyChild(this, nextFocus as any, 'parent')) {
-      // my one child focus lost but another child get focus - do nothing
+      // мой один из детей потерял фокус, а другой получил фокус
+      // - ничего не делаем, так как у родителя он остается все равно
       return
     }
     this.unsetHasFocus(nextFocus);
@@ -171,7 +175,7 @@ export abstract class NavItemBaseDirective
     this.children.sort(
       (a, b) =>
         // смотрим сначала кто выше, потом кто левее (если они на одном уровне)
-        // рассчет происходит только один раз при регистрации потомка
+        // расчет происходит только один раз при регистрации потомка
         a.el.nativeElement.offsetTop - b.el.nativeElement.offsetTop || a.el.nativeElement.offsetLeft - b.el.nativeElement.offsetLeft
     );
     this.initDirections(navItem);
@@ -187,6 +191,7 @@ export abstract class NavItemBaseDirective
   }
 
   ngOnDestroy(): void {
+    console.log('ngOnDestroy', this.el.nativeElement)
     this.navigationItemsStoreService.removeNavItem(this);
     if (this.parent) {
       this.parent.unRegisterChild(this);
@@ -198,19 +203,39 @@ export abstract class NavItemBaseDirective
       if (changes['id'].firstChange) {
         this.navigationItemsStoreService.addNavItem(this);
       } else {
-        this.navigationItemsStoreService.changeNavItemId(
-          this,
-          changes['id'].previousValue
-        );
+        this.navigationItemsStoreService.changedNavItemId(this);
       }
     }
   }
 
   ngAfterContentInit(): void {
+    console.log('ngAfterContentInit', this.el.nativeElement)
     if (this.parent) {
       this.parent.registerChild(this);
     }
     this.navigationService.afterContentInitNavItem(this);
+  }
+
+
+  findBackward(child?: NavItem): NavItem | undefined {
+    // Если мы принимаем бек, то возвращаем себя
+    if (this.back) {
+      return this;
+    }
+    // Если мы не принимаем бек, то ищем бек у своих детей до того кто сам просил бек
+    if (child && this.children.length) {
+      const index = this.children.indexOf(child);
+      for (let i = index - 1; i >= 0; i--) {
+        if (this.children[i].back) {
+          return this.children[i];
+        }
+      }
+    }
+    // Если есть родитель, то пусть он уже сам ищет бек, так как мы не нашли его
+    if (this.parent) {
+      return this.parent.findBackward(this);
+    }
+    return undefined;
   }
 
   /**
@@ -246,4 +271,16 @@ export abstract class NavItemBaseDirective
     };
     return this.memory?.findFocus() || listFindFocus();
   }
+
+  // logTree(): void {
+  //   console.log(this.el.nativeElement);
+  //   console.log('up', this.up);
+  //   console.log('down', this.down);
+  //   console.log('right', this.right);
+  //   console.log('left', this.left);
+  //   // @ts-ignore
+  //   console.log('focusedNavItem', this.navigationService.focusedNavItem?.el.nativeElement);
+  //   this.children.forEach(item => item.logTree())
+  // }
+
 }

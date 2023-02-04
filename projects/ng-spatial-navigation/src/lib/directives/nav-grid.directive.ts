@@ -56,7 +56,7 @@ function showGridInConsole(from: NavItem, to: NavItem | undefined, children: Nav
   for (let i = 0; i < children.length; i += gridRowSize) {
     const line = children.slice(i, i + gridRowSize);
     table.push(line.map((item) => {
-      return item.id === from.id ? `from: ${item.id}` : item.id === to?.id ? `to: ${item.id}` : item.id;
+      return item.navId === from.navId ? `from: ${item.navId}` : item.navId === to?.navId ? `to: ${item.navId}` : item.navId;
     }))
   }
   console.table(table);

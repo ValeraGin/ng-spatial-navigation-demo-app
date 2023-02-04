@@ -91,6 +91,8 @@ export class KeyboardService {
         } else {
           return false;
         }
+        case KeyboardKeysEnum.BACKSPACE:
+          return this.navigationService.back()
       default:
         return false;
     }

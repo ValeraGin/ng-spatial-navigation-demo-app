@@ -1,12 +1,5 @@
 <div navRoot id="root" [id]="'root'" horizontal>
-  <app-sidemenu
-    navList
-    (vBlur)="log('blur')"
-    (vFocus)="container.classList.add('menu-open')">
-  ></app-sidemenu>
-  <div navList [id]="'container'" #container>
-    <router-outlet></router-outlet>
-  </div>
+  <router-outlet></router-outlet>
 </div>
 
 
