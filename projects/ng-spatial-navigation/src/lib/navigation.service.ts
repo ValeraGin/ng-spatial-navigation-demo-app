@@ -81,14 +81,18 @@ export class NavigationService {
     }
     this.focusedNavItem = navItem;
 
-    scrollIntoView(this.focusedNavItem.el.nativeElement, {
-      scrollMode: 'always',
-      behavior: 'smooth',
-      block: 'center',
-      inline: 'center',
-    })
+    if (!this.focusedNavItem.noNeedScroll) {
+      scrollIntoView(this.focusedNavItem.el.nativeElement, {
+        scrollMode: 'always',
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center',
+      })
+    }
 
-    // this.focusedNavItem.el.nativeElement.scrollIntoView();
+    //this.focusedNavItem.el.nativeElement.scrollIntoView();
+
+    this.focusedNavItem.el.nativeElement.focus();
     this.focusedNavItem.setFocus(() => this.focusedElementDestroyed());
     this.status = 'default';
     return true;

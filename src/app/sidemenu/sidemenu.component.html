@@ -1,0 +1,13 @@
+<div class="side-menu" #sidemenu navList [id]="'sidemenu'"
+     (vBlur)="sidemenu.classList.remove('open')"
+     (vFocus)="sidemenu.classList.add('open')">
+  <h1 class="side-menu__title">Menu</h1>
+  <ul class="side-menu__list">
+    <li class="side-menu__item" navFocusable noNeedScroll [id]="'sidemenu_' + 1">
+      <a class="side-menu__link"  href="/home">Home</a>
+    </li>
+    <li class="side-menu__item" navFocusable noNeedScroll [id]="'sidemenu_' + 2">
+      <a class="side-menu__link"  href="/movies">Movies</a>
+    </li>
+  </ul>
+</div>

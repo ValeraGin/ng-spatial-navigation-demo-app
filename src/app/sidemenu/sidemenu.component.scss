@@ -1,0 +1,42 @@
+.side-menu {
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  position: fixed;
+  left: -200px;
+  top: 0;
+  bottom: 0;
+  transition: left 0.5s ease-in-out;
+  &.open {
+    left: 0;
+  }
+}
+
+.side-menu__toggle {
+  background-color: #333;
+  color: #fff;
+  border: 0;
+  padding: 10px;
+  position: absolute;
+  top: 0;
+  right: -200px;
+}
+
+.side-menu__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.side-menu__item {
+  padding: 20px;
+  border-bottom: 1px solid #444;
+  &.focused {
+    background-color: #444;
+  }
+}
+
+.side-menu__link {
+  color: #fff;
+  text-decoration: none;
+}

@@ -6,10 +6,16 @@ import { AppComponent } from './app.component';
 
 import { NgSpatialNavigationModule } from 'ng-spatial-navigation';
 import { HttpClientModule } from '@angular/common/http';
+import { SidemenuComponent } from './sidemenu/sidemenu.component';
+import { MainComponent } from './main/main.component';
+import { CategoryComponent } from './category/category.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    SidemenuComponent,
+    MainComponent,
+    CategoryComponent
   ],
   imports: [
     BrowserModule,

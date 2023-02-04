@@ -9,6 +9,7 @@ import {
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { FocusableNavItem } from '../types/nav-item.type';
 import { NavListDirective } from './nav-list.directive';
+import { CoerceBoolean } from "../decorators/coerce-boolean.decorator";
 
 @Directive({
   selector: '[navFocusable]',
@@ -37,19 +38,14 @@ export class NavFocusableDirective extends NavListDirective {
   @Input() willUnFocus: ((nextElement: HTMLElement) => boolean) | undefined;
 
   /**
-   * Событие, которое вызывается когда элемент, получает фокус
+   * Флаг, который показывает находиться ли элемент в фокусе
    */
-  @Output() vFocus = new EventEmitter();
-
-  /**
-   * Событие, которое вызывается когда элемент, теряет фокус
-   */
-  @Output() vBlur = new EventEmitter();
+  focused: boolean | undefined;
 
   /**
    * Флаг, который показывает находиться ли элемент в фокусе
    */
-  focused: boolean | undefined;
+  @CoerceBoolean() @Input() noNeedScroll: boolean | string | undefined;
 
   /**
    * Функция, которая вызывается перед уничтожением элемента когда он находится в фокусе
@@ -72,20 +68,18 @@ export class NavFocusableDirective extends NavListDirective {
     return this;
   }
 
-  setFocus(beforeDestroy: NavFocusableDirective['beforeDestroy']): void {
+  setFocus(beforeDestroy: FocusableNavItem['beforeDestroy']): void {
     this.beforeDestroy = beforeDestroy;
     this.focused = true;
-    this.vFocus.emit();
-    this.parent?.childFocusReceive(this);
     this.renderer.addClass(this.el.nativeElement, 'focused');
+    super.setHasFocus();
   }
 
   unsetFocus(nextFocus?: FocusableNavItem): void {
     this.beforeDestroy = undefined;
     this.focused = false;
-    this.vBlur.emit();
-    this.parent?.childFocusLost(this, nextFocus);
     this.renderer.removeClass(this.el.nativeElement, 'focused');
+    super.unsetHasFocus(nextFocus);
   }
 
   override ngOnDestroy(): void {

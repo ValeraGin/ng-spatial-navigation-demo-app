@@ -1,12 +1,12 @@
 import {
   AfterContentInit,
   Directive,
-  ElementRef,
+  ElementRef, EventEmitter,
   Inject,
   Input,
   OnChanges,
   OnDestroy,
-  Optional,
+  Optional, Output,
   Renderer2,
   SimpleChanges,
   SkipSelf,
@@ -23,6 +23,7 @@ import { KeyboardService } from '../keyboard.service';
 import { isMyChild } from '../utils/is-my-child';
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
+import { NavFocusableDirective } from "./nav-focusable.directive";
 
 @Directive()
 /**
@@ -71,9 +72,24 @@ export abstract class NavItemBaseDirective
   @Input() tabIndex = -1;
 
   /**
+   * Событие, которое вызывается когда элемент, получает фокус
+   */
+  @Output() vFocus = new EventEmitter();
+
+  /**
+   * Событие, которое вызывается когда элемент, теряет фокус
+   */
+  @Output() vBlur = new EventEmitter();
+
+  /**
    * элемент, который был активен до ухода из фокуса в списке дочерних элементов
    */
   memory?: NavItem;
+
+  /**
+   * флаг, что элемент в фокусе или его дочерний элемент в фокусе
+   */
+  hasFocus = false;
 
   /**
    * список дочерних элементов
@@ -111,17 +127,43 @@ export abstract class NavItemBaseDirective
   ) {
   }
 
-  childFocusReceive(child: NavItem): void {
-    this.memory = child;
-    if (this.parent && !isMyChild(this, child, 'parent')) {
+  setHasFocus(): void {
+    console.log('setHasFocus', this.el.nativeElement);
+    this.vFocus.emit();
+    this.hasFocus = true;
+    if (this.parent) {
       this.parent.childFocusReceive(this);
     }
   }
 
-  childFocusLost(child: NavItem, nextFocus: FocusableNavItem | undefined): void {
-    if (this.parent && !isMyChild(this, child, 'parent')) {
+  unsetHasFocus(nextFocus?: FocusableNavItem): void {
+    console.log('unsetHasFocus', this.el.nativeElement);
+    this.vBlur.emit();
+    this.hasFocus = false;
+    if (this.parent) {
       this.parent.childFocusLost(this, nextFocus);
     }
+  }
+
+  childFocusReceive(child: NavItem): void {
+    this.memory = child;
+    if (this.hasFocus) {
+      // we already have focus - do nothing
+      return
+    }
+    this.setHasFocus();
+  }
+
+  childFocusLost(child: NavItem, nextFocus: FocusableNavItem | undefined): void {
+    if (!this.hasFocus) {
+      console.error(this.id, 'we do not have focus, but we lost it - possible bug')
+      return
+    }
+    if (nextFocus && isMyChild(this, nextFocus as any, 'parent')) {
+      // my one child focus lost but another child get focus - do nothing
+      return
+    }
+    this.unsetHasFocus(nextFocus);
   }
 
   registerChild(navItem: NavItem): void {

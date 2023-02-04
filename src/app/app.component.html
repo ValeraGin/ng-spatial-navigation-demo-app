@@ -1,60 +1,13 @@
-<div class="container" navRoot id="root">
-
-  <h3>Горизонтальный список</h3>
-  <div class="viewport-images">
-    <div class="d-flex flex-nowrap" navList horizontal id="img_list">
-      <img navFocusable class="img" width="100" height="150" *ngFor="let item of items"
-           [src]="'https://picsum.photos/100/150?random='+ item" [id]="'img_'+ item">
-    </div>
+<div navRoot id="root" [id]="'root'" horizontal>
+  <app-sidemenu
+    navList
+    (vBlur)="log('blur')"
+    (vFocus)="container.classList.add('menu-open')">
+  ></app-sidemenu>
+  <div navList [id]="'container'" #container>
+    <router-outlet></router-outlet>
   </div>
-
-  <div class="row" navList horizontal id="list_hor_lists">
-    <div class="col-6">
-      <h3>Вертикальный список</h3>
-      <ul class="list" navList id="list_1_of_2">
-        <ng-container *ngFor="let n of items">
-          <li navFocusable [id]="'list_1_of_2__'+ n"> Элемент №{{n}} </li>
-        </ng-container>
-      </ul>
-    </div>
-    <div class="col-6">
-      <h3>Вертикальный список 2</h3>
-      <ul class="list" navList id="list_2_of_2">
-        <ng-container *ngFor="let n of items">
-          <li navFocusable [id]="'list_2_of_2__'+ n"> Элемент №{{n}} </li>
-        </ng-container>
-      </ul>
-    </div>
-  </div>
-
-  <ng-container *ngIf="!showGrid">
-    <button id="button2222" (click)="showGrid = !showGrid" navFocusable>Show/Hide</button>
-  </ng-container>
-
-  <h3>Горизонтальный список</h3>
-  <nav aria-label="Page navigation example">
-    <ul #item3 class="pagination" navList horizontal id="list_hor_btns">
-      <li class="page-item"><a navFocusable class="page-link">Previous</a></li>
-      <li class="page-item"><a navFocusable class="page-link">1</a></li>
-      <li class="page-item"><a navFocusable class="page-link">2</a></li>
-      <li class="page-item"><a navFocusable class="page-link">3</a></li>
-      <li class="page-item"><a navFocusable class="page-link">Next</a></li>
-    </ul>
-  </nav>
-
-  <h3>Сетка</h3>
-  <div class="div" *ngIf="showGrid" navLayer>
-    <div class="row align-items-md-stretch" navGrid id="grid" [gridRowSize]="4">
-      <div *ngFor="let item of items; let i = index" class="col-3 mb-2">
-        <div class="h-100 p-3 text-white bg-dark rounded-3">
-          <h2>Text</h2>
-          <button navFocusable class="btn btn-outline-light" type="button" (click)="addItem(item)"
-                  [id]="'post_'+ item">Удалить {{item}} {{i}}</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div>
+
 
 
