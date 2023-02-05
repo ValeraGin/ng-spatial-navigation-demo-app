@@ -8,7 +8,7 @@ import { BlockNavigation } from "../types/directions.type";
 
 const layerBlockNavigationToken: BlockNavigation = {
   type: 'block',
-  reason: 'Вы находитесь в слое и поэтому вам нельзя из него выходить через навигацию вверх, вниз, влево или вправо'
+  reason: 'Дальше нельзя - граница слоя',
 };
 
 @Directive({
@@ -52,7 +52,6 @@ export class NavLayerDirective extends NavListDirective {
   }
 
   override ngAfterContentInit(): void {
-    console.log('ngAfterContentInit', this);
     super.ngAfterContentInit();
     if (this.parentLayer) {
       this.parentLayer.registerLayer(this);

@@ -13,6 +13,11 @@ export class AppComponent {
     private ngSpatialNavigationService: NgSpatialNavigationService,
     private location: Location
   ) {
+
+    ngSpatialNavigationService.setSettings({
+      useRealFocus: true,
+    });
+
     ngSpatialNavigationService.setBackUnhandledCallback(() => {
       // if (confirm('Хотите выйти?')) {
       //   window.close(); // or another way to close the app - it was just an example

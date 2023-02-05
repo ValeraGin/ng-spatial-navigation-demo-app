@@ -8,7 +8,7 @@ import { FocusStatus } from './types/focus-status.type';
 import { isBlockNavigation } from './type-guards/is-block-navigation';
 import { debugLog } from './utils/debug';
 
-import scrollIntoView from 'scroll-into-view-if-needed';
+import scrollIntoView, { Options } from 'scroll-into-view-if-needed';
 
 /**
  * Время, которое дается элементам на отрисовку до передачи им фокуса (в миллисекундах)
@@ -20,6 +20,18 @@ export const TIME_DEBOUNCE_FOCUS_IN_MS = 200;
 
 @Injectable()
 export class NavigationService {
+
+  settings = {
+    scrollIntoViewOptions: {
+      scrollMode: 'always',
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'center',
+    } as Options,
+    disableScrollGlobally: false,
+    useNativeScroll: false,
+    useRealFocus: false,
+  }
 
   focusedNavItem: FocusableNavItem | undefined;
 
@@ -59,11 +71,18 @@ export class NavigationService {
       this.navItemsForCheckFocus = [];
       return;
     }
+    console.groupCollapsed('Пытаемся вернуть фокус, так как появились элементы для проверки');
     const commonParent = findCommonParent(...this.navItemsForCheckFocus);
     this.navItemsForCheckFocus = [];
     if (commonParent) {
-      this.focusWithFind(commonParent);
+      debugLog('Общий родитель новых элементов - с него начинаем поиск', commonParent.el.nativeElement);
+      if (this.focusWithFind(commonParent)) {
+        debugLog('Фокус успешно приземлился на новый элемент');
+      } else {
+        debugLog('Фокусу некуда было упасть - продолжаем ждать новых элементов способных принять фокус');
+      }
     }
+    console.groupEnd();
   }
 
   focusWithFind(navItem: NavItem): boolean {
@@ -77,30 +96,44 @@ export class NavigationService {
   }
 
   focus(navItem: FocusableNavItem): boolean {
-    console.trace(navItem.el.nativeElement, this.focusedNavItem?.el.nativeElement);
     if (navItem === this.focusedNavItem) {
       return true;
     }
-    debugLog(`move focus to element with id=${navItem.navId}`);
+    console.groupCollapsed('Смена фокуса');
     if (this.focusedNavItem) {
       this.focusedNavItem.unsetFocus(navItem);
     }
     this.focusedNavItem = navItem;
-
-    if (!this.focusedNavItem.noNeedScroll) {
-      scrollIntoView(this.focusedNavItem.el.nativeElement, {
-        scrollMode: 'always',
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'center',
-      })
+    if (!this.settings.disableScrollGlobally && !this.focusedNavItem.noNeedScroll) {
+      if (this.settings.useNativeScroll) {
+        this.focusedNavItem.el.nativeElement.scrollIntoView();
+      } else {
+        scrollIntoView(this.focusedNavItem.el.nativeElement, this.settings.scrollIntoViewOptions)
+      }
     }
+    if (this.settings.useRealFocus) {
 
-    //this.focusedNavItem.el.nativeElement.scrollIntoView();
+      this.focusedNavItem.el.nativeElement.focus();
+      setTimeout(() => {
+        if (document.activeElement !== this.focusedNavItem?.el.nativeElement) {
+          debugLog('Не удалось установить нативный фокус на элементе', this.focusedNavItem?.el.nativeElement);
+          debugLog('Для установки нативного фокуса - он должен быть фокусабельным');
+          /**
+           * focusable elements are:
+           *
+           * form elements (input, select, textarea)
+           * links (a)
+           * buttons (button, input[type="button"], input[type="submit"])
+           * details and summary element
+           * elements with the "tabindex" attribute set to a positive integer
+           */
+        }
+      })
 
-    //this.focusedNavItem.el.nativeElement.focus();
+    }
     this.focusedNavItem.setFocus(() => this.focusedElementDestroyed());
     this.status = 'default';
+    console.groupEnd();
     return true;
   }
 
@@ -152,7 +185,7 @@ export class NavigationService {
         // Произошло самое страшное - фокус ушел в никуда
         // Это нормально и этого не стоит бояться, так как когда появится элемент,
         // который может принять фокус, он будет найден
-        console.log('Фокус ушел в никуда');
+        console.warn('Фокус ушел в никуда');
         this.focusedNavItem = undefined;
         this.status = 'waiting';
       }
@@ -169,13 +202,14 @@ export class NavigationService {
           ? directionDataWithFn()
           : directionDataWithFn;
       if (isBlockNavigation(directionDataWithElement)) {
+        debugLog(directionDataWithElement.reason);
         return undefined;
       }
       const directionData =
         directionDataWithElement instanceof HTMLElement
           ? this.navigationItemsStoreService.getNavItemByElement(
-              directionDataWithElement
-            )
+            directionDataWithElement
+          )
           : directionDataWithElement;
       const navItem =
         typeof directionData === 'string'
@@ -215,10 +249,8 @@ export class NavigationService {
         this.focusedNavItem
       );
       if (elementToFocus && this.focus(elementToFocus)) {
-        debugLog(`success navigate to ${direction} direction`);
+        debugLog(`Успешно перешли в ${direction} направление`);
         return true;
-      } else {
-        debugLog(`failure navigate to ${direction} direction`);
       }
     }
     return false;
@@ -244,15 +276,23 @@ export class NavigationService {
   }
 
   afterContentInitNavItem(navItem: NavItem): void {
-    if (this.status === 'waiting') {
-      this.navItemsForCheckFocus.push(navItem);
-      this.markFocusForCheck();
-    } else if (
-      this.status === 'waiting_id' &&
-      this.waitingId &&
-      this.waitingId === navItem.navId
-    ) {
-      this.focusWithFind(navItem);
+    switch (this.status) {
+      case 'waiting':
+        this.navItemsForCheckFocus.push(navItem);
+        this.markFocusForCheck();
+        break;
+      case 'waiting_id':
+        if (this.waitingId) {
+          if (navItem.navId === this.waitingId) {
+            this.focusWithFind(navItem);
+          }
+        } else {
+          console.error('Статус ожидания элемента, но нет идентификатора элемента - баг');
+        }
+        break;
+      case "default":
+        // Ничего не делаем, так как фокус уже есть
+        break;
     }
   }
 }

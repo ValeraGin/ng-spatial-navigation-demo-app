@@ -6,17 +6,13 @@ import { MovieCardComponent } from "./movie-card/movie-card.component";
 import { SidemenuComponent } from "./sidemenu/sidemenu.component";
 
 const routes: Routes = [{
-  path: 'main',
+  path: '',
   component: SidemenuComponent,
   children: [{
-    path: '',
+    path: 'main',
     component: MainComponent
-  }]
-}, {
-  path: 'profile',
-  component: SidemenuComponent,
-  children: [{
-    path: '',
+  }, {
+    path: 'profile',
     component: ProfileComponent
   }]
 }, {

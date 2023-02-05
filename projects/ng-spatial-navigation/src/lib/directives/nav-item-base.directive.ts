@@ -24,6 +24,7 @@ import { isMyChild } from '../utils/is-my-child';
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
 import { CoerceBoolean } from "../decorators/coerce-boolean.decorator";
+import { debugLog } from "../utils/debug";
 
 @Directive()
 /**
@@ -131,18 +132,18 @@ export abstract class NavItemBaseDirective
   }
 
   setHasFocus(): void {
-    console.log('setHasFocus', this.el.nativeElement);
     this.vFocus.emit();
     this.hasFocus = true;
+    debugLog('Элемент получил фокус', this.el.nativeElement);
     if (this.parent) {
       this.parent.childFocusReceive(this);
     }
   }
 
   unsetHasFocus(nextFocus?: FocusableNavItem): void {
-    console.log('unsetHasFocus', this.el.nativeElement);
     this.vBlur.emit();
     this.hasFocus = false;
+    debugLog('Элемент потерял фокус', this.el.nativeElement);
     if (this.parent) {
       this.parent.childFocusLost(this, nextFocus);
     }
@@ -191,7 +192,6 @@ export abstract class NavItemBaseDirective
   }
 
   ngOnDestroy(): void {
-    console.log('ngOnDestroy', this.el.nativeElement)
     this.navigationItemsStoreService.removeNavItem(this);
     if (this.parent) {
       this.parent.unRegisterChild(this);
@@ -209,7 +209,6 @@ export abstract class NavItemBaseDirective
   }
 
   ngAfterContentInit(): void {
-    console.log('ngAfterContentInit', this.el.nativeElement)
     if (this.parent) {
       this.parent.registerChild(this);
     }

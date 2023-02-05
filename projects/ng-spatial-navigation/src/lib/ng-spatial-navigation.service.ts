@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { NavigationService } from './navigation.service';
 import { NavigationItemsStoreService } from './navigation-items-store.service';
 import { setDebugLevel } from './utils/debug';
+import { merge } from "./utils/deep-merge";
 
 @Injectable()
 /**
@@ -9,10 +10,12 @@ import { setDebugLevel } from './utils/debug';
  */
 export class NgSpatialNavigationService {
 
+
   constructor(
     private navigationService: NavigationService,
     private navigationItemsStoreService: NavigationItemsStoreService
-  ) {}
+  ) {
+  }
 
   /**
    * Снимает фокус если он есть и переводит в режим ожидания элемента
@@ -55,6 +58,10 @@ export class NgSpatialNavigationService {
    */
   setBackUnhandledCallback(cb: () => void): void {
     this.navigationService.backCallBack = cb;
+  }
+
+  setSettings(settings: Partial<NavigationService['settings']>): void {
+    this.navigationService.settings = merge(this.navigationService.settings, settings) as NavigationService['settings'];
   }
 
   /**
