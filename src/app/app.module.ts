@@ -19,15 +19,15 @@ import { MovieCardComponent } from './movie-card/movie-card.component';
     MainComponent,
     CategoryComponent,
     ProfileComponent,
-    MovieCardComponent
+    MovieCardComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    NgSpatialNavigationModule
+    NgSpatialNavigationModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

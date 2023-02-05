@@ -1,14 +1,25 @@
 <ng-container *ngIf="lines$ | async as lines">
   <div class="mt-5" *ngFor="let line of lines">
-    <h1 class="font-bold text-2xl ml-20 mb-5 text-white">{{line.title}}</h1>
+    <h1 class="font-bold text-2xl ml-20 mb-5 text-white">{{ line.title }}</h1>
     <div class="overflow-hidden">
       <div class="flex" navList [id]="'movies-row-1'" horizontal>
-        <div *ngFor="let movie of line.data; let i = index" navFocusable [id]="'movies-row-1_' + i" [back]="i === 0"
-             class="mr-10" [class.ml-20]="i === 0">
+        <div
+          *ngFor="let movie of line.data; let i = index"
+          navFocusable
+          [id]="'movies-row-1_' + i"
+          [back]="i === 0"
+          class="mr-10"
+          [class.ml-20]="i === 0"
+        >
           <div class="rounded overflow-hidden shadow-lg w-full">
-            <img [src]="getPosterUrl(movie.poster_path)" alt="{{ movie.title }}">
+            <img
+              [src]="getPosterUrl(movie.poster_path)"
+              alt="{{ movie.title }}"
+            />
             <div class="px-6 py-4">
-              <div class="font-bold text-l text-white  mb-2 truncate w-60">{{ movie.title || movie.name }}</div>
+              <div class="font-bold text-l text-white mb-2 truncate w-60">
+                {{ movie.title || movie.name }}
+              </div>
               <!--          <p class="text-gray-700 text-base">{{ movie.description }}</p>-->
             </div>
           </div>
@@ -17,5 +28,3 @@
     </div>
   </div>
 </ng-container>
-
-

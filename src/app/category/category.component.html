@@ -1,10 +1,13 @@
 <div class="grid grid-cols-6" navGrid [gridRowSize]="6">
   <div *ngFor="let movie of movies" navFocusable class="p-3 pt-10">
     <div class="max-w-sm rounded overflow-hidden shadow-lg">
-      <img [src]="getPosterUrl(movie.poster_path)" class="w-full" alt="{{ movie.title }}">
+      <img
+        [src]="getPosterUrl(movie.poster_path)"
+        class="w-full"
+        alt="{{ movie.title }}"
+      />
       <div class="px-6 py-4">
         <div class="font-bold text-xl mb-2">{{ movie.title }}</div>
-        <!--        <p class="text-gray-700 text-base">{{ movie.overview }}</p>-->
       </div>
     </div>
   </div>

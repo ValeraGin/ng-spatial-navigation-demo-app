@@ -1,20 +1,38 @@
-<div class="side-menu" #sidemenu
-     navList
-     back
-     [id]="'sidemenu'"
-     (vBlur)="sidemenu.classList.remove('open'); container.classList.remove('menu-open')"
-     (vFocus)="sidemenu.classList.add('open'); container.classList.add('menu-open')">
+<div
+  class="side-menu"
+  #sidemenu
+  id="side-menu"
+  navList
+  back
+  (vBlur)="
+    sidemenu.classList.remove('open');
+    container.classList.remove('menu-open');
+  "
+  (vFocus)="
+    sidemenu.classList.add('open');
+    container.classList.add('menu-open');
+  "
+>
   <h1 class="font-bold text-xl m-2">Апельсин ТВ</h1>
   <ul class="side-menu__list">
-    <li class="side-menu__item" *ngFor="let item of items; let i = index"
-        [routerLink]="item.link"
-        [queryParams]="item.queryParams"
-        navFocusable noNeedScroll
-        [id]="'sidemenu_' + i">
-      <a class="side-menu__link">{{item.title}} </a>
+    <li
+      class="side-menu__item"
+      *ngFor="let item of items; let i = index"
+      [routerLink]="item.link"
+      [queryParams]="item.queryParams"
+      navFocusable
+      noNeedScroll
+      [id]="'sidemenu_' + i"
+    >
+      <a class="side-menu__link">{{ item.title }} </a>
     </li>
-    <li class="side-menu__item" navFocusable noNeedScroll
-        [id]="'sidemenu_full'" (click)="fullscreenToggle()" >
+    <li
+      class="side-menu__item"
+      navFocusable
+      noNeedScroll
+      [id]="'sidemenu_full'"
+      (click)="fullscreenToggle()"
+    >
       <a class="side-menu__link">Полный экран</a>
     </li>
   </ul>
@@ -23,4 +41,3 @@
 <div navList #container id="container">
   <router-outlet></router-outlet>
 </div>
-
