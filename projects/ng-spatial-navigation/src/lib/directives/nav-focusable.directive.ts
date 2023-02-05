@@ -33,7 +33,7 @@ export class NavFocusableDirective extends NavListDirective {
   /**
    * Функция, которая вызывается перед тем как фокус будет передан с этого элемента
    */
-  @Input() willUnFocus: ((nextElement: HTMLElement) => boolean) | undefined;
+  @Input() willBlur: ((nextElement: HTMLElement) => boolean) | undefined;
 
   /**
    * Флаг, который показывает находиться ли элемент в фокусе

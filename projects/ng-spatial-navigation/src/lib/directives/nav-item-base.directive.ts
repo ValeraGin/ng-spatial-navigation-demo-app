@@ -71,11 +71,6 @@ export abstract class NavItemBaseDirective
   @CoerceBoolean() @Input() back: boolean | string | undefined;
 
   /**
-   * Кастомный tabindex на элемент, чтобы менять последовательность навигации
-   */
-  @Input() tabIndex = -1;
-
-  /**
    * Событие, которое вызывается когда элемент, получает фокус
    */
   @Output() vFocus = new EventEmitter();
