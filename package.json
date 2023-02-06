@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "lib-build-watch": "ng build ng-spatial-navigation --watch",
+    "lib-build": "ng build ng-spatial-navigation",
     "test": "ng test"
   },
   "private": true,
