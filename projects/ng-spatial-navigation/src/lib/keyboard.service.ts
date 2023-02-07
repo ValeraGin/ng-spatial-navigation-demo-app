@@ -3,12 +3,22 @@ import { NavigationService } from './navigation.service';
 import { DOCUMENT } from '@angular/common';
 import { KeyboardKeysEnum } from './enums/keyboard-keys.enum';
 
-const EXTREME_INTERVAL_REPEAT = 50;
+/**
+ * Минимальный (экстремальный) интервал между повторными нажатиями клавиш при удержании
+ *
+ * Если (repeatInterval < EXTREME_INTERVAL_REPEAT) тогда мы используем системный repeatInterval (из события с event.repeat)
+ */
+const EXTREME_INTERVAL_REPEAT = 200;
 
 /** @dynamic */
 @Injectable()
 export class KeyboardService {
-  // NOTE: if (repeatInterval < EXTREME_INTERVAL_REPEAT) then we use system repeatInterval (from event with event.repeat property)
+
+  /**
+   * Интервал между повторными нажатиями клавиш при удержании
+   *
+   * @see EXTREME_INTERVAL_REPEAT
+   */
   private repeatInterval = 0;
 
   /**
@@ -62,7 +72,7 @@ export class KeyboardService {
       this.documentListenerCount++;
     }
     if (this.documentListenerCount > 1) {
-      console.warn('More than one root listener is defined! It can cause problems. May be you need to add global parameter?');
+      console.warn('Произошла ошибка в работе ng-spatial-navigation. На странице несколько корневых элементов.');
     }
     this.zone.runOutsideAngular(() => {
       elementForListen.addEventListener('keydown', this.keyDownListener, true);
@@ -70,7 +80,7 @@ export class KeyboardService {
     });
   }
 
-  private doAction(keyCode: number, isShift: boolean): boolean {
+  private async doAction(keyCode: number, isShift: boolean): Promise<boolean> {
     switch (keyCode) {
       case KeyboardKeysEnum.UP:
         return this.navigationService.navigate('up');
@@ -98,11 +108,11 @@ export class KeyboardService {
     }
   }
 
-  private keyRepeat(event: KeyboardEvent): void {
-    this.needStopEvent[event.code] = this.doAction(event.keyCode, event.shiftKey);
+  private async keyRepeat(event: KeyboardEvent): Promise<void> {
+    this.needStopEvent[event.code] = await this.doAction(event.keyCode, event.shiftKey);
   }
 
-  private keyListener(isDown: boolean, event: KeyboardEvent): void {
+  private async keyListener(isDown: boolean, event: KeyboardEvent): Promise<void> {
     if (!(event.keyCode in KeyboardKeysEnum) || !this.isEnabled) {
       return;
     }
@@ -140,7 +150,7 @@ export class KeyboardService {
     if (!isDown) {
       return;
     }
-    this.needStopEvent[event.code] = this.doAction(event.keyCode, event.shiftKey);
+    this.needStopEvent[event.code] = await this.doAction(event.keyCode, event.shiftKey);
     if (this.needStopEvent[event.code]) {
       event.stopImmediatePropagation();
     }

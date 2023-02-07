@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-sidemenu',
@@ -6,12 +7,14 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./sidemenu.component.scss'],
 })
 export class SidemenuComponent {
+
+  constructor(private router: Router) {}
+
   items = [
-    { title: 'Гланая', link: '/main', queryParams: { type: 'main' } },
+    { title: 'Главная', link: '/main', queryParams: { type: 'main' } },
     { title: 'Фильмы', link: '/main', queryParams: { type: 'movies' } },
     { title: 'Сериалы', link: '/main', queryParams: { type: 'tvs' } },
     { title: 'Профиль', link: '/profile', queryParams: {} },
-    { title: 'Карточка фильма', link: '/movie-card', queryParams: {} },
   ];
 
   fullscreenToggle() {

@@ -4,79 +4,92 @@ import { NavItemBaseDirective } from './nav-item-base.directive';
 import { NavItem } from '../types/nav-item.type';
 import { CoerceBoolean } from '../decorators/coerce-boolean.decorator';
 import { Direction } from '../types/direction.type';
-import { DirectionType } from '../types/directions.type';
 
-export function setNav(
-  navItem: NavItem,
-  direction: Direction,
-  value: DirectionType
-): void {
-  //if (!isBlockNavigation(navItem[direction])) {
-    navItem[direction] = value;
-  //}
-}
-
-export function initDirectionsList(
-  children: NavItem[],
-  navItem: NavItem,
-  isHorizontal?: boolean
-): void {
-  const index = children.indexOf(navItem);
-  const isFirst = index === 0;
-  const isLast = index === children.length - 1;
-  const prev = isFirst ? undefined : children[index - 1];
-  const next = isLast ? undefined : children[index + 1];
-  if (isHorizontal) {
-    setNav(navItem, 'up', undefined);
-    setNav(navItem, 'down', undefined);
-    setNav(navItem, 'left', prev);
-    setNav(navItem, 'right', next);
-    if (prev) {
-      setNav(prev, 'right', navItem);
-    }
-    if (next) {
-      setNav(next, 'left', navItem);
-    }
-  } else {
-    setNav(navItem, 'left', undefined);
-    setNav(navItem, 'right', undefined);
-    setNav(navItem, 'up', prev);
-    setNav(navItem, 'down', next);
-    if (prev) {
-      setNav(prev, 'down', navItem);
-    }
-    if (next) {
-      setNav(next, 'up', navItem);
-    }
+/**
+ * Получает элемент по направлению в листе
+ *
+ * @param direction - направление
+ * @param index - индекс текущего элемента
+ * @param children - список элементов
+ * @param horizontal - признак горизонтального листа
+ */
+function getItemFromDirection(direction: Direction, index: number, children: NavItem[], horizontal: boolean): NavItem | undefined {
+  switch (direction) {
+    case 'up':
+      return horizontal ? undefined : index - 1 >= 0 ? children[index - 1] : undefined;
+    case 'down':
+      return horizontal ? undefined : index + 1 < children.length ? children[index + 1] : undefined;
+    case 'right':
+      return horizontal ? index + 1 < children.length ? children[index + 1] : undefined : undefined;
+    case 'left':
+      return horizontal ? index - 1 >= 0 ? children[index - 1] : undefined : undefined;
+    case 'tab':
+      return index + 1 < children.length ? children[index + 1] : undefined;
+    case 'tabshift':
+      return index - 1 >= 0 ? children[index - 1] : undefined;
   }
 }
 
-export function removeDirectionsList(
+/**
+ * Показать лист в консоли
+ *
+ * @param from - текущий элемент
+ * @param to - элемент по направлению
+ * @param children - все элементы
+ */
+function showListInConsole(from: NavItem, to: NavItem | undefined, children: NavItem[]) {
+  const output = children.map((item) =>
+    item === from
+      ? `from: ${item.navId}`
+      : item === to
+        ? `to: ${item.navId}`
+        : item.navId
+  );
+  // console.table(output);
+}
+
+/**
+ * Инициализация направлений для грида
+ *
+ * @param children - все элементы
+ * @param navItem - текущий элемент
+ */
+function initDirectionsList(
+  children: NavItem[],
+  navItem: NavItem
+  , horizontal: boolean): void {
+  const getFromDirectionHelper = (direction: Direction): NavItem | undefined => {
+    const index = children.indexOf(navItem);
+    const ret = getItemFromDirection(direction, index, children, horizontal);
+    showListInConsole(navItem, ret, children);
+    return ret
+  };
+
+  navItem.up = getFromDirectionHelper.bind(null, 'up');
+  navItem.down = getFromDirectionHelper.bind(null, 'down');
+  navItem.right = getFromDirectionHelper.bind(null, 'right');
+  navItem.left = getFromDirectionHelper.bind(null, 'left');
+  navItem.tab = getFromDirectionHelper.bind(null, 'tab');
+  navItem.tabshift = getFromDirectionHelper.bind(null, 'tabshift');
+}
+
+/**
+ * Удаление направлений для
+ *
+ * @param children - все элементы
+ * @param navItem - текущий элемент
+ */
+function removeDirectionsList(
   children: NavItem[],
   navItem: NavItem,
-  isHorizontal?: boolean
+  horizontal: boolean
 ): void {
-  const index = children.indexOf(navItem);
-  const isFirst = index === 0;
-  const isLast = index === children.length - 1;
-  const prev = isFirst ? undefined : children[index - 1];
-  const next = isLast ? undefined : children[index + 1];
-  if (isHorizontal) {
-    if (prev) {
-      setNav(prev, 'right', next);
-    }
-    if (next) {
-      setNav(next, 'left', prev);
-    }
-  } else {
-    if (prev) {
-      setNav(prev, 'down', next);
-    }
-    if (next) {
-      setNav(next, 'up', prev);
-    }
-  }
+  navItem.up = undefined;
+  navItem.down = undefined;
+  navItem.right = undefined;
+  navItem.left = undefined;
 }
+
 
 @Directive({
   selector: '[navList]',

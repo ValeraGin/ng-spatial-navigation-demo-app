@@ -3,6 +3,7 @@ import { NavigationService } from './navigation.service';
 import { NavigationItemsStoreService } from './navigation-items-store.service';
 import { setDebugLevel } from './utils/debug';
 import { merge } from "./utils/deep-merge";
+import { DirectionType } from "./types/directions.type";
 
 @Injectable()
 /**
@@ -71,15 +72,7 @@ export class NgSpatialNavigationService {
    * Он должен быть декорирован директивой либо его ребенок,
    * который получит фокус если родительский элемент не декорирован
    */
-  setFocus(element: HTMLElement): boolean {
-    const navItem =
-      this.navigationItemsStoreService.getNavItemByElement(element);
-    if (navItem) {
-      return this.navigationService.focusWithFind(navItem);
-    }
-    // recursive set focus for children elements if current element is not navItem
-    return Array.from(element.children).some((child) => {
-      return child instanceof HTMLElement && this.setFocus(child);
-    });
+  setFocus(element: NonNullable<DirectionType>): Promise<void> {
+    return this.navigationService.setFocus(element);
   }
 }

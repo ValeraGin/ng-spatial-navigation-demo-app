@@ -7,7 +7,8 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root',
 })
 export class MainService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+  }
 
   getPageTitleByType(type: 'movies' | 'tvs' | 'main' = 'main') {
     switch (type) {
@@ -26,7 +27,8 @@ export class MainService {
       map((data) => {
         return {
           title,
-          data: data.results,
+          url,
+          data: data.results.slice(0, 10),
         };
       })
     );

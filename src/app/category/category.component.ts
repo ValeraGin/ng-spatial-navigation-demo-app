@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Movie, MovieResponse } from '../main/movie.interface';
 import { HttpClient } from '@angular/common/http';
+import { map, mergeMap, Observable } from "rxjs";
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
   selector: 'app-category',
@@ -8,23 +10,35 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./category.component.scss'],
 })
 export class CategoryComponent {
-  movies: Movie[] = [];
+  movies$: Observable<Movie[]>;
 
   getPosterUrl(path: string) {
     return `https://image.tmdb.org/t/p/w500${path}`;
   }
 
-  constructor(private http: HttpClient) {
-    this.fetchData();
+  constructor(private http: HttpClient, private activatedRoute: ActivatedRoute) {
+    this.movies$ = this.activatedRoute.queryParams.pipe(
+      map((params) => params['url'] as string),
+      mergeMap((category) => this.getCategoryMovies$(category))
+    );
   }
 
-  private fetchData() {
-    this.http
+  private getCategoryMovies$(url: string) {
+    // merge data.results from two pages
+    return this.http
       .get<MovieResponse>(
-        'https://api.themoviedb.org/3/movie/now_playing?api_key=4ef0d7355d9ffb5151e987764708ce96&language=en-US&page=1'
-      )
-      .subscribe((data) => {
-        this.movies = data.results;
-      });
+        url + 'page=1'
+      ).pipe(
+        mergeMap((data) => {
+          return this.http
+            .get<MovieResponse>(
+              url + 'page=2'
+            ).pipe(
+              map((data2) => {
+                return data.results.concat(data2.results);
+              })
+            );
+        })
+      );
   }
 }

@@ -19,7 +19,9 @@ function getItemFromDirection(direction: Direction, index: number, children: Nav
     case 'down':
       return index + gridRowSize < children.length
         ? children[index + gridRowSize]
-        : undefined;
+        : index !== children.length - 1
+          ? children[children.length - 1]
+          : undefined;
     case 'right':
       return index !== children.length - 1 && (index + 1) % gridRowSize !== 0
         ? children[index + 1]
@@ -29,17 +31,9 @@ function getItemFromDirection(direction: Direction, index: number, children: Nav
         ? children[index - 1]
         : undefined;
     case 'tab':
-      return index + gridRowSize < children.length
-        ? children[index + gridRowSize]
-        : index !== children.length - 1 && (index + 1) % gridRowSize !== 0
-          ? children[index + 1]
-          : undefined;
+      return index + 1 < children.length ? children[index + 1] : undefined;
     case 'tabshift':
-      return index - gridRowSize >= 0
-        ? children[index - gridRowSize]
-        : index !== 0 && index % gridRowSize !== 0
-          ? children[index - 1]
-          : undefined;
+      return index - 1 >= 0 ? children[index - 1] : undefined;
   }
 }
 
@@ -59,7 +53,7 @@ function showGridInConsole(from: NavItem, to: NavItem | undefined, children: Nav
       return item.navId === from.navId ? `from: ${item.navId}` : item.navId === to?.navId ? `to: ${item.navId}` : item.navId;
     }))
   }
-  console.table(table);
+  // console.table(table);
 }
 
 /**

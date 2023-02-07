@@ -1,4 +1,7 @@
-export let debugLog: (...args: any) => void
+export let debugGroupCollapsed: (...args: any) => void;
+export let debugGroupEnd: (...args: any) => void;
+export let debugLog: (...args: any) => void;
+export let debugWarn: (...args: any) => void;
 export let debugError: (...args: any) => void;
 
 /**
@@ -10,14 +13,18 @@ export let debugError: (...args: any) => void;
  * @param level.info - логировать ошибки и информационные сообщения
  */
 export function setDebugLevel(level: 'no_debug' | 'error' | 'info'): void {
-  debugLog = () => {
-  };
-  debugError = () => {
-  };
+  debugGroupCollapsed = () => {};
+  debugGroupEnd = () => {};
+  debugLog = () => {};
+  debugWarn = () => {};
+  debugError = () => {};
   switch (level) {
     // @ts-ignore - fallthrough is intended here
     case 'info':
+      debugGroupCollapsed = console.groupCollapsed;
+      debugGroupEnd = console.groupEnd;
       debugLog = console.log;
+      debugWarn = console.warn;
     /* FALLTHROUGH */
     case 'error':
       debugError = console.error;

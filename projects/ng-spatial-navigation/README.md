@@ -29,7 +29,6 @@ export class AppModule {
 Добавьте директивы `navRoot` и `navFocusable` в ваш шаблон:
 
 ```html
-
 <div navRoot>
   <div navFocusable>First element</div>
   <div navFocusable>Second element</div>

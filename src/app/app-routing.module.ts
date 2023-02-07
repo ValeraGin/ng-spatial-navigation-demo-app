@@ -4,6 +4,7 @@ import { MainComponent } from './main/main.component';
 import { ProfileComponent } from './profile/profile.component';
 import { MovieCardComponent } from './movie-card/movie-card.component';
 import { SidemenuComponent } from './sidemenu/sidemenu.component';
+import { CategoryComponent } from "./category/category.component";
 
 const routes: Routes = [
   {
@@ -21,8 +22,12 @@ const routes: Routes = [
     ],
   },
   {
-    path: 'movie-card',
+    path: 'movie/:movieId',
     component: MovieCardComponent,
+  },
+  {
+    path: 'category',
+    component: CategoryComponent,
   },
   {
     path: '',

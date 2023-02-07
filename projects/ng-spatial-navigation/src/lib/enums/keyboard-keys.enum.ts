@@ -3,6 +3,8 @@
  *
  * Используется только одна версия, так как на всех платформах одинаковые коды клавиш в данном случае
  *
+ * TODO: Реализовать возможность пробрасывать свои коды клавиши через конфигурацию
+ *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode
  */
 export enum KeyboardKeysEnum {

@@ -1,5 +1,5 @@
 <div class="grid grid-cols-6" navGrid [gridRowSize]="6">
-  <div *ngFor="let movie of movies" navFocusable class="p-3 pt-10">
+  <div *ngFor="let movie of (movies$ | async)" navFocusable class="p-3 pt-10">
     <div class="max-w-sm rounded overflow-hidden shadow-lg">
       <img
         [src]="getPosterUrl(movie.poster_path)"
