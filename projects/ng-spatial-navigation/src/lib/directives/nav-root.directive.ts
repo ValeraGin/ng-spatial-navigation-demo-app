@@ -26,6 +26,8 @@ import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
  */
 export class NavRootDirective extends NavLayerDirective {
 
+  override type = 'root';
+
   /**
    * Список всех корневых элемент
    *

@@ -128,6 +128,8 @@ function removeDirectionsGrid(
  */
 export class NavGridDirective extends NavItemBaseDirective {
 
+  override type = 'grid';
+
   /**
    * Размер грида по горизонтали
    */

@@ -16,6 +16,7 @@ const routes: Routes = [
         component: MainComponent,
       },
       {
+
         path: 'profile',
         component: ProfileComponent,
       },

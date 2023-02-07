@@ -5,7 +5,7 @@ import {
   Inject,
   Input,
   OnChanges,
-  OnDestroy,
+  OnDestroy, OnInit,
   Optional, Output,
   Renderer2,
   SimpleChanges,
@@ -31,7 +31,10 @@ import { debugLog } from "../utils/debug";
  * Базовый класс для всех элементов навигации
  */
 export abstract class NavItemBaseDirective
-  implements OnDestroy, OnChanges, AfterContentInit, Directions {
+  implements OnDestroy, OnChanges, AfterContentInit, OnInit, Directions {
+
+  type = 'base';
+
   /**
    * Идентификатор элемента навигации
    */
@@ -203,6 +206,12 @@ export abstract class NavItemBaseDirective
     }
   }
 
+  ngOnInit(): void {
+    if (!this.navId) {
+      this.navId = this.el.nativeElement.id || (this.parent && this.parent.generateId(this))
+    }
+  }
+
   ngAfterContentInit(): void {
     if (this.parent) {
       this.parent.registerChild(this);
@@ -276,5 +285,9 @@ export abstract class NavItemBaseDirective
   //   console.log('focusedNavItem', this.navigationService.focusedNavItem?.el.nativeElement);
   //   this.children.forEach(item => item.logTree())
   // }
+
+  generateId(child: NavItem): string {
+    return `${this.navId}-${this.children.length}`;
+  }
 
 }

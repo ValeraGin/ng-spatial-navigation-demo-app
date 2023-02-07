@@ -25,6 +25,8 @@ import { CoerceBoolean } from "../decorators/coerce-boolean.decorator";
  */
 export class NavFocusableDirective extends NavListDirective {
 
+  override type = 'focusable';
+
   /**
    * Функция, которая вызывается перед тем как фокус будет передан на этот элемент
    */

@@ -53,6 +53,7 @@ function showListInConsole(from: NavItem, to: NavItem | undefined, children: Nav
  *
  * @param children - все элементы
  * @param navItem - текущий элемент
+ * @param horizontal - признак горизонтального листа
  */
 function initDirectionsList(
   children: NavItem[],
@@ -78,6 +79,7 @@ function initDirectionsList(
  *
  * @param children - все элементы
  * @param navItem - текущий элемент
+ * @param horizontal - признак горизонтального листа
  */
 function removeDirectionsList(
   children: NavItem[],
@@ -116,6 +118,9 @@ function removeDirectionsList(
  * </div>
  */
 export class NavListDirective extends NavItemBaseDirective {
+
+  override type = 'list';
+
   /**
    * Если true, то навигация будет горизонтальной (кнопки влево/вправо)
    */

@@ -25,6 +25,9 @@ const layerBlockNavigationToken: BlockNavigation = {
   ],
 })
 export class NavLayerDirective extends NavListDirective {
+
+  override type = 'layer';
+
   override up = layerBlockNavigationToken;
 
   override right = layerBlockNavigationToken;
@@ -57,7 +60,7 @@ export class NavLayerDirective extends NavListDirective {
       this.parentLayer.registerLayer(this);
     }
     this.prevMemory = this.parent?.memory;
-    this.navigationService.focusWithFind(this);
+    this.navigationService.layerAppear(this);
   }
 
   override ngOnDestroy(): void {

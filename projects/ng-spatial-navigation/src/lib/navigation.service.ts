@@ -10,6 +10,7 @@ import { debugGroupCollapsed, debugGroupEnd, debugLog } from './utils/debug';
 
 import scrollIntoView, { Options } from 'scroll-into-view-if-needed';
 import { DirectionType } from './types/directions.type';
+import { isMyChild } from "./utils/is-my-child";
 
 /**
  * Время, которое дается элементам на отрисовку до передачи им фокуса (в миллисекундах)
@@ -21,7 +22,6 @@ export const TIME_DEBOUNCE_FOCUS_IN_MS = 200;
 
 @Injectable()
 export class NavigationService {
-
   settings = {
     scrollIntoViewOptions: {
       scrollMode: 'always',
@@ -32,7 +32,9 @@ export class NavigationService {
     disableScrollGlobally: false,
     useNativeScroll: false,
     useRealFocus: false,
-  }
+  };
+
+  activeLayer: LayerNavItem | undefined;
 
   focusedNavItem: FocusableNavItem | undefined;
 
@@ -91,6 +93,21 @@ export class NavigationService {
       }
     }
     debugGroupEnd();
+  }
+
+
+  layerAppear(layer: LayerNavItem) {
+    const findFocus = layer.findFocus();
+    if (findFocus) {
+      this.focus(findFocus);
+    } else {
+      // Произошел корнер кейс - слой появился, а в нем нет элементов, которые могут принять фокус
+      if (this.focusedNavItem) {
+        this.focusedNavItem.unsetFocus();
+      }
+      this.focusedNavItem = undefined;
+      this.status = 'waiting';
+    }
   }
 
   focusWithFind(navItem: NavItem): boolean {
@@ -177,7 +194,7 @@ export class NavigationService {
     const findReplaceRecursive = (
       navItem: NavItem
     ): FocusableNavItem | undefined => {
-      if (navItem && navItem.parent) {
+      if (navItem && navItem.parent && (navItem.parent.type === 'layer' || navItem.parent.type === 'root')) {
         const replaceNavItem = navItem.parent.findReplace(navItem);
         if (replaceNavItem) {
           const findFocus = replaceNavItem.findFocus();
@@ -302,8 +319,10 @@ export class NavigationService {
   afterContentInitNavItem(navItem: NavItem): void {
     switch (this.status) {
       case 'waiting':
-        this.navItemsForCheckFocus.push(navItem);
-        this.markFocusForCheck();
+       if (!this.activeLayer || (this.activeLayer && isMyChild(this.activeLayer, navItem, 'parent'))) {
+          this.navItemsForCheckFocus.push(navItem);
+          this.markFocusForCheck();
+        }
         break;
       case 'waiting_id':
         if (this.waitingId) {
