@@ -6,11 +6,16 @@ import { Direction } from './types/direction.type';
 import { NavigationItemsStoreService } from './navigation-items-store.service';
 import { FocusStatus } from './types/focus-status.type';
 import { isBlockNavigation } from './type-guards/is-block-navigation';
-import { debugError, debugGroupCollapsed, debugGroupEnd, debugLog } from './utils/debug';
+import {
+  debugError,
+  debugGroupCollapsed,
+  debugGroupEnd,
+  debugLog,
+} from './utils/debug';
 
 import scrollIntoView, { Options } from 'scroll-into-view-if-needed';
 import { BlockNavigation, DirectionType } from './types/directions.type';
-import { isMyChild } from "./utils/is-my-child";
+import { isMyChild } from './utils/is-my-child';
 
 /**
  * Время, которое дается элементам на отрисовку до передачи им фокуса (в миллисекундах)
@@ -94,7 +99,6 @@ export class NavigationService {
     }
     debugGroupEnd();
   }
-
 
   layerAppear(layer: LayerNavItem) {
     const findFocus = layer.findFocus();
@@ -194,7 +198,11 @@ export class NavigationService {
     const findReplaceRecursive = (
       navItem: NavItem
     ): FocusableNavItem | undefined => {
-      if (navItem && navItem.parent && (navItem.parent.type === 'layer' || navItem.parent.type === 'root')) {
+      if (
+        navItem &&
+        navItem.parent &&
+        (navItem.parent.type === 'layer' || navItem.parent.type === 'root')
+      ) {
         const replaceNavItem = navItem.parent.findReplace(navItem);
         if (replaceNavItem) {
           const findFocus = replaceNavItem.findFocus();
@@ -229,7 +237,10 @@ export class NavigationService {
     }
   }
 
-  async execDirection(direction: DirectionType, currentItem?: NavItem): Promise<NavItem | BlockNavigation | undefined> {
+  async execDirection(
+    direction: DirectionType,
+    currentItem?: NavItem
+  ): Promise<NavItem | BlockNavigation | undefined> {
     const directionDataWithElementOrPromise =
       typeof direction === 'function' ? direction(currentItem) : direction;
     const directionDataWithElement =
@@ -239,8 +250,8 @@ export class NavigationService {
     const directionData =
       directionDataWithElement instanceof HTMLElement
         ? this.navigationItemsStoreService.getNavItemByElement(
-          directionDataWithElement
-        )
+            directionDataWithElement
+          )
         : directionDataWithElement;
     return typeof directionData === 'string'
       ? this.navigationItemsStoreService.getNavItemById(directionData)
@@ -251,7 +262,10 @@ export class NavigationService {
     const getFromDirectionRecursive = async (
       currentItem: NavItem
     ): Promise<NavItem | BlockNavigation | undefined> => {
-      const navItem = await this.execDirection(currentItem.getDirection(direction), currentItem);
+      const navItem = await this.execDirection(
+        currentItem.getDirection(direction),
+        currentItem
+      );
       if (navItem) {
         return navItem;
       }
@@ -270,7 +284,9 @@ export class NavigationService {
       }
       const fromDirection = await getFromDirectionRecursive(currentNavItem);
       if (isBlockNavigation(fromDirection)) {
-        debugLog(`Навигация в ${direction} направление заблокирована ${fromDirection.reason}`);
+        debugLog(
+          `Навигация в ${direction} направление заблокирована ${fromDirection.reason}`
+        );
         return;
       }
       if (fromDirection) {
@@ -305,7 +321,10 @@ export class NavigationService {
    * то вы потеряете фокус, так что осторожнее с этим методом
    */
   waitForElement(id: string): void {
-    const targetNavItem = this.navigationItemsStoreService.getNavItemById(id, true);
+    const targetNavItem = this.navigationItemsStoreService.getNavItemById(
+      id,
+      true
+    );
     if (targetNavItem) {
       if (!this.focusWithFind(targetNavItem)) {
         debugError('Элемент найден, но не может принять фокус');
@@ -320,25 +339,33 @@ export class NavigationService {
     }
     this.status = 'waiting_id';
     this.waitingId = id;
-    console.log('Ожидаем элемент с идентификатором', id)
+    console.log('Ожидаем элемент с идентификатором', id);
   }
 
   afterContentInitNavItem(navItem: NavItem): void {
     switch (this.status) {
       case 'waiting':
-       if (!this.activeLayer || (this.activeLayer && isMyChild(this.activeLayer, navItem, 'parent'))) {
+        if (
+          !this.activeLayer ||
+          (this.activeLayer && isMyChild(this.activeLayer, navItem, 'parent'))
+        ) {
           this.navItemsForCheckFocus.push(navItem);
           this.markFocusForCheck();
         }
         break;
       case 'waiting_id':
-        if (!this.activeLayer || (this.activeLayer && isMyChild(this.activeLayer, navItem, 'parent'))) {
+        if (
+          !this.activeLayer ||
+          (this.activeLayer && isMyChild(this.activeLayer, navItem, 'parent'))
+        ) {
           this.navItemsForCheckFocus.push(navItem);
         }
         if (this.waitingId) {
           if (navItem.navId === this.waitingId) {
             if (!this.focusWithFind(navItem)) {
-              debugError('Элемент найден, но не может принять фокус - переходим в waiting');
+              debugError(
+                'Элемент найден, но не может принять фокус - переходим в waiting'
+              );
               this.status = 'waiting';
               this.markFocusForCheck();
             }
@@ -356,22 +383,24 @@ export class NavigationService {
     }
   }
 
-
   async setFocus(direction: NonNullable<DirectionType>) {
     if (!direction) {
-      console.error('Пустой аргумент для setFocus! Пожалуйста, проверяйте что передаете в этот метод!');
+      console.error(
+        'Пустой аргумент для setFocus! Пожалуйста, проверяйте что передаете в этот метод!'
+      );
       return;
     }
     const navItem = await this.execDirection(direction);
     if (isBlockNavigation(navItem)) {
-      throw new Error('Какой дурак додумался передавать в setFocus блокирующий элемент?');
+      throw new Error(
+        'Какой дурак додумался передавать в setFocus блокирующий элемент?'
+      );
     }
-    console.log(navItem)
+    console.log(navItem);
     if (navItem) {
       this.focusWithFind(navItem);
     } else {
       console.warn('Не удалось найти элемент для фокуса');
     }
   }
-
 }

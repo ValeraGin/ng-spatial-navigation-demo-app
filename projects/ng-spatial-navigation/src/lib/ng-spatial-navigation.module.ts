@@ -7,33 +7,9 @@ import { NavLayerDirective } from './directives/nav-layer.directive';
 import { NavigationItemsStoreService } from './navigation-items-store.service';
 import { NavigationService } from './navigation.service';
 import { KeyboardService } from './keyboard.service';
-import { NgSpatialNavigationService } from "./ng-spatial-navigation.service";
-import { DetectDomChangesService } from "./detect-dom-changes.service";
+import { NgSpatialNavigationService } from './ng-spatial-navigation.service';
+import { DetectDomChangesService } from './detect-dom-changes.service';
 
-@NgModule({
-  declarations: [
-    NavListDirective,
-    NavGridDirective,
-    NavFocusableDirective,
-    NavRootDirective,
-    NavLayerDirective,
-  ],
-  imports: [],
-  exports: [
-    NavListDirective,
-    NavGridDirective,
-    NavFocusableDirective,
-    NavRootDirective,
-    NavLayerDirective,
-  ],
-  providers: [
-    KeyboardService,
-    NavigationService,
-    NavigationItemsStoreService,
-    DetectDomChangesService,
-    NgSpatialNavigationService,
-  ]
-})
 /**
  * Модуль для работы с навигацией по элементам
  *
@@ -91,5 +67,39 @@ import { DetectDomChangesService } from "./detect-dom-changes.service";
  *  }
  *
  */
-export class NgSpatialNavigationModule {}
+@NgModule({
+  declarations: [
+    NavListDirective,
+    NavGridDirective,
+    NavFocusableDirective,
+    NavRootDirective,
+    NavLayerDirective,
+  ],
+  imports: [],
+  exports: [
+    NavListDirective,
+    NavGridDirective,
+    NavFocusableDirective,
+    NavRootDirective,
+    NavLayerDirective,
+  ],
+  providers: [
+    KeyboardService,
+    NavigationService,
+    NavigationItemsStoreService,
+    DetectDomChangesService,
+    NgSpatialNavigationService,
+  ],
+})
+export class NgSpatialNavigationModule {
+  private static instance: any;
 
+  constructor() {
+    if (NgSpatialNavigationModule.instance) {
+      throw new Error(
+        'NgSpatialNavigationModule is already loaded. Import it in the AppModule only'
+      );
+    }
+    NgSpatialNavigationModule.instance = this;
+  }
+}

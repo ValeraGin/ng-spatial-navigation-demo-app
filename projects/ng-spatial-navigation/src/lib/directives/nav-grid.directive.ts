@@ -12,16 +12,23 @@ import { Direction, DIRECTIONS } from '../types/direction.type';
  * @param children - список элементов
  * @param gridRowSize - размер грида по горизонтали
  */
-function gridDirectionFn(direction: Direction, index: number, children: NavItem[], gridRowSize: number): NavItem | undefined {
+function gridDirectionFn(
+  direction: Direction,
+  index: number,
+  children: NavItem[],
+  gridRowSize: number
+): NavItem | undefined {
   switch (direction) {
     case 'up':
-      return index - gridRowSize >= 0 ? children[index - gridRowSize] : undefined;
+      return index - gridRowSize >= 0
+        ? children[index - gridRowSize]
+        : undefined;
     case 'down':
       return index + gridRowSize < children.length
         ? children[index + gridRowSize]
         : index !== children.length - 1
-          ? children[children.length - 1]
-          : undefined;
+        ? children[children.length - 1]
+        : undefined;
     case 'right':
       return index !== children.length - 1 && (index + 1) % gridRowSize !== 0
         ? children[index + 1]
@@ -45,38 +52,26 @@ function gridDirectionFn(direction: Direction, index: number, children: NavItem[
  * @param children - все элементы
  * @param gridRowSize - размер грида по горизонтали
  */
-function showGridInConsole(from: NavItem, to: NavItem | undefined, children: NavItem[], gridRowSize: number) {
+function showGridInConsole(
+  from: NavItem,
+  to: NavItem | undefined,
+  children: NavItem[],
+  gridRowSize: number
+) {
   const table = [];
   for (let i = 0; i < children.length; i += gridRowSize) {
     const line = children.slice(i, i + gridRowSize);
-    table.push(line.map((item) => {
-      return item.navId === from.navId ? `from: ${item.navId}` : item.navId === to?.navId ? `to: ${item.navId}` : item.navId;
-    }))
+    table.push(
+      line.map((item) => {
+        return item.navId === from.navId
+          ? `from: ${item.navId}`
+          : item.navId === to?.navId
+          ? `to: ${item.navId}`
+          : item.navId;
+      })
+    );
   }
   // console.table(table);
-}
-
-/**
- * Инициализация направлений для грида
- *
- * @param children - все элементы
- * @param navItem - текущий элемент
- * @param gridSize - размер грида по горизонтали
- */
-function initDirectionsGrid(
-  children: NavItem[],
-  navItem: NavItem,
-  gridSize: number
-): void {
-  const gridDirectionFnHelper = (direction: Direction): NavItem | undefined => {
-    const index = children.indexOf(navItem);
-    const ret = gridDirectionFn(direction, index, children, gridSize);
-    showGridInConsole(navItem, ret, children, gridSize);
-    return ret
-  };
-  for (const direction of DIRECTIONS) {
-    navItem[direction] = gridDirectionFnHelper.bind(undefined, direction);
-  }
 }
 
 @Directive({
@@ -103,7 +98,6 @@ function initDirectionsGrid(
  * </div>
  */
 export class NavGridDirective extends NavItemBaseDirective {
-
   override type = 'grid';
 
   /**
@@ -114,12 +108,23 @@ export class NavGridDirective extends NavItemBaseDirective {
   override initNavItem() {}
 
   initDirections(navItem: NavItem): void {
-    return initDirectionsGrid(this.children, navItem, this.gridRowSize ?? 0);
+    const gridSize = this.gridRowSize ?? 2;
+    const gridDirectionFnHelper = (
+      direction: Direction
+    ): NavItem | undefined => {
+      const index = this.children.indexOf(navItem);
+      const ret = gridDirectionFn(direction, index, this.children, gridSize);
+      showGridInConsole(navItem, ret, this.children, gridSize);
+      return ret;
+    };
+    for (const direction of DIRECTIONS) {
+      navItem[direction] = gridDirectionFnHelper.bind(undefined, direction);
+    }
   }
 
   removeDirections(navItem: NavItem): void {
     for (const direction of DIRECTIONS) {
-      navItem[direction] = undefined
+      navItem[direction] = undefined;
     }
   }
 }

@@ -1,14 +1,16 @@
-<h1 class="font-bold text-2xl ml-10 mb-5 text-white">Название категории</h1>
-<div class="grid grid-cols-6" navGrid [gridRowSize]="6" id="category_grid">
-  <div *ngFor="let movie of (movies$ | async)" navFocusable class="p-3 pt-10">
+<h1 class="font-bold text-2xl ml-10 mb-5 mt-5 text-white">{{pageTitle}}</h1>
+<div [gridRowSize]="6" class="grid grid-cols-6" id="category_grid" navGrid>
+  <div *ngFor="let movie of movies$ | async" class="p-3 pt-10" navFocusable>
     <div class="max-w-sm rounded overflow-hidden shadow-lg">
       <img
-        [src]="getPosterUrl(movie.poster_path)"
-        class="w-full"
+        [src]="tmdbService.getPosterUrl(movie.poster_path)"
         alt="{{ movie.title }}"
+        class="w-full"
       />
       <div class="px-6 py-4">
-        <div class="font-bold text-xl text-white mb-2">{{ movie.title || movie.name }}</div>
+        <div class="font-bold text-xl text-white mb-2">
+          {{ movie.title || movie.name }}
+        </div>
       </div>
     </div>
   </div>

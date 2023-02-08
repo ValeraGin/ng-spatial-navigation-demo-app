@@ -1,36 +1,56 @@
-import {  Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Movie } from './movie.interface';
-import { map, mergeMap, Observable, tap } from 'rxjs';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { MainService } from './main.service';
-import { NgSpatialNavigationModule, NgSpatialNavigationService } from "ng-spatial-navigation";
-import { CommonModule } from "@angular/common";
+import { map, mergeMap, Observable, startWith, tap, zip } from 'rxjs';
+import { ActivatedRoute, Params } from '@angular/router';
+import { TmdbService } from '../../core/services/tmdb.service';
+import { TmdbMainPageData } from '../../core/services/data/tmdb-main-page.data';
+import { MovieShort } from '../../core/services/types/list.type';
+import { NgSpatialNavigationService } from 'ng-spatial-navigation';
 
 @Component({
   selector: 'app-main',
-  standalone: true,
-  imports: [CommonModule, RouterModule, NgSpatialNavigationModule],
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
 })
-export class MainComponent implements OnInit {
-  lines$: Observable<{ title: string; url: string, data: Movie[] }[]>;
+export class MainComponent {
 
-  getPosterUrl(path: string) {
-    return `https://image.tmdb.org/t/p/w500${path}`;
-  }
+  pageTitle = 'Главная';
+
+  lines$: Observable<{ title: string; urlPart: string; data: MovieShort[] }[]>;
 
   constructor(
     private http: HttpClient,
     private activatedRoute: ActivatedRoute,
-    private mainService: MainService,
+    public tmdbService: TmdbService,
     private ngSpatialNavigationService: NgSpatialNavigationService
   ) {
+    console.log('MainComponent constructor');
+
     this.lines$ = this.activatedRoute.queryParams.pipe(
-      map((params) => params['type'] as string),
-      mergeMap((type) => this.mainService.getLinesByType(type as any)),
+      map((params) => {
+        let type = params['type'] as keyof typeof TmdbMainPageData;
+        switch (type) {
+          case 'main':
+            this.pageTitle = 'Главная';
+            break;
+          case 'films':
+            this.pageTitle = 'Фильмы';
+            break;
+          case 'shows':
+            this.pageTitle = 'Сериалы';
+            break;
+        }
+        return TmdbMainPageData[type] || TmdbMainPageData.main;
+      }),
+      mergeMap((arr) => {
+        return zip(
+          arr.map(([urlPart, title]) => {
+            return this.tmdbService.getList$(title, urlPart);
+          })
+        );
+      }),
       tap((lines) => {
+        console.log(lines)
         // После обновления данных ждем пока отрендерится первый ряд и отфокусируем его
         if (lines.length) {
           this.ngSpatialNavigationService.waitForElement('movies-row_0');
@@ -38,9 +58,4 @@ export class MainComponent implements OnInit {
       })
     );
   }
-
-  ngOnInit(): void {
-
-  }
-
 }

@@ -1,9 +1,8 @@
-
-
-#container {
+#main-layout-container {
   transition: padding-left 0.5s ease-in-out;
+  padding-left: 300px;
 
-  &.menu-open {
-    padding-left: 300px;
+  &.has-focus {
+    padding-left: 0px;
   }
 }

@@ -6,6 +6,6 @@
  * `default` - фокус установлен
  */
 export type FocusStatus =
-  'waiting' |
-  'waiting_id' |
-  'default';
+  | 'waiting'
+  | 'waiting_id'
+  | 'default';

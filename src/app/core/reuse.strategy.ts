@@ -1,8 +1,4 @@
-import {
-  ActivatedRouteSnapshot,
-  DetachedRouteHandle,
-  RouteReuseStrategy,
-} from '@angular/router';
+import { ActivatedRouteSnapshot, DetachedRouteHandle, RouteReuseStrategy, } from '@angular/router';
 
 export class ApelsinTVCustomRouteReuseStrategy implements RouteReuseStrategy {
   private routeStore = new Map<string, DetachedRouteHandle>();
@@ -11,9 +7,11 @@ export class ApelsinTVCustomRouteReuseStrategy implements RouteReuseStrategy {
     const path = route.routeConfig!.path!;
     return !!(path && true);
   }
+
   store(route: ActivatedRouteSnapshot, handle: DetachedRouteHandle): void {
     this.routeStore.set(route.routeConfig!.path!, handle);
   }
+
   shouldAttach(route: ActivatedRouteSnapshot): boolean {
     const path = route.routeConfig!.path!;
     return !!(path && true && !!this.routeStore.get(path));
@@ -23,6 +21,7 @@ export class ApelsinTVCustomRouteReuseStrategy implements RouteReuseStrategy {
     const path = route.routeConfig!.path!;
     return this.routeStore.get(path)!;
   }
+
   shouldReuseRoute(
     future: ActivatedRouteSnapshot,
     curr: ActivatedRouteSnapshot

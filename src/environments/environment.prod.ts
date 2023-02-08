@@ -1,4 +1,4 @@
 export const environment = {
-  appName: 'ApelsinTV',
+  appName: 'Апельсин ТВ',
   production: true,
 };

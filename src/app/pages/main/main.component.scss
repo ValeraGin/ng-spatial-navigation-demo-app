@@ -1,18 +1,14 @@
 .movies-row {
-  transition: margin-left 0.5s ease-in-out;
-  margin-left: 350px;
-  &.has-focus {
-    margin-left: 50px;
-  }
+
 }
 
 .movie {
   transition: transform 0.2s ease-in-out;
   transform: scale(1);
+
   &.focused {
     transform: scale(1.08);
     border: 1px solid;
     border-radius: 50%;
   }
 }
-

@@ -1,51 +1,35 @@
-import { Component } from '@angular/core';
-import { Movie, MovieResponse } from '../main/movie.interface';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, mergeMap, Observable } from "rxjs";
-import { ActivatedRoute, RouterModule } from "@angular/router";
-import { CommonModule } from "@angular/common";
-import { NgSpatialNavigationModule } from 'ng-spatial-navigation';
+import { map, mergeMap, Observable, tap } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { MovieShort } from '../../core/services/types/list.type';
+import { TmdbService } from '../../core/services/tmdb.service';
 
 @Component({
   selector: 'app-category',
-  standalone: true,
-  imports: [CommonModule, RouterModule, NgSpatialNavigationModule],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CategoryComponent {
-  movies$: Observable<Movie[]>;
 
-  getPosterUrl(path: string) {
-    return `https://image.tmdb.org/t/p/w500${path}`;
-  }
+  pageTitle = '';
+
+  movies$: Observable<MovieShort[]>;
 
   constructor(
     private http: HttpClient,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    public tmdbService: TmdbService,
+    private cd: ChangeDetectorRef
   ) {
     this.movies$ = this.activatedRoute.queryParams.pipe(
-      map((params) => params['url'] as string),
-      mergeMap((category) => this.getCategoryMovies$(category))
+      tap((params) => {
+        this.pageTitle = params['title'] as string;
+        this.cd.markForCheck();
+      }),
+      map((params) => params['urlPart'] as string),
+      mergeMap((urlPart) => this.tmdbService.getCategoryMovies$(urlPart))
     );
-  }
-
-  private getCategoryMovies$(url: string) {
-    // merge data.results from two pages
-    return this.http
-      .get<MovieResponse>(
-        url + 'page=1'
-      ).pipe(
-        mergeMap((data) => {
-          return this.http
-            .get<MovieResponse>(
-              url + 'page=2'
-            ).pipe(
-              map((data2) => {
-                return data.results.concat(data2.results)
-              })
-            );
-        })
-      );
   }
 }

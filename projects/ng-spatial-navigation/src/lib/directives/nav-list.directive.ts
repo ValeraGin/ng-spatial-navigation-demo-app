@@ -13,16 +13,37 @@ import { Direction, DIRECTIONS } from '../types/direction.type';
  * @param children - список элементов
  * @param horizontal - признак горизонтального листа
  */
-function listDirectionFn(direction: Direction, index: number, children: NavItem[], horizontal: boolean): NavItem | undefined {
+function listDirectionFn(
+  direction: Direction,
+  index: number,
+  children: NavItem[],
+  horizontal: boolean
+): NavItem | undefined {
   switch (direction) {
     case 'up':
-      return horizontal ? undefined : index - 1 >= 0 ? children[index - 1] : undefined;
+      return horizontal
+        ? undefined
+        : index - 1 >= 0
+        ? children[index - 1]
+        : undefined;
     case 'down':
-      return horizontal ? undefined : index + 1 < children.length ? children[index + 1] : undefined;
+      return horizontal
+        ? undefined
+        : index + 1 < children.length
+        ? children[index + 1]
+        : undefined;
     case 'right':
-      return horizontal ? index + 1 < children.length ? children[index + 1] : undefined : undefined;
+      return horizontal
+        ? index + 1 < children.length
+          ? children[index + 1]
+          : undefined
+        : undefined;
     case 'left':
-      return horizontal ? index - 1 >= 0 ? children[index - 1] : undefined : undefined;
+      return horizontal
+        ? index - 1 >= 0
+          ? children[index - 1]
+          : undefined
+        : undefined;
     case 'tab':
       return index + 1 < children.length ? children[index + 1] : undefined;
     case 'tabshift':
@@ -37,13 +58,17 @@ function listDirectionFn(direction: Direction, index: number, children: NavItem[
  * @param to - элемент по направлению
  * @param children - все элементы
  */
-function showListInConsole(from: NavItem, to: NavItem | undefined, children: NavItem[]) {
+function showListInConsole(
+  from: NavItem,
+  to: NavItem | undefined,
+  children: NavItem[]
+) {
   const output = children.map((item) =>
     item === from
       ? `from: ${item.navId}`
       : item === to
-        ? `to: ${item.navId}`
-        : item.navId
+      ? `to: ${item.navId}`
+      : item.navId
   );
   // console.table(output);
 }
@@ -57,16 +82,20 @@ function showListInConsole(from: NavItem, to: NavItem | undefined, children: Nav
  */
 function initDirectionsList(
   children: NavItem[],
-  navItem: NavItem
-  , horizontal: boolean): void {
+  navItem: NavItem,
+  horizontal: boolean
+): void {
   const listDirectionFnHelper = (direction: Direction): NavItem | undefined => {
     const index = children.indexOf(navItem);
     const ret = listDirectionFn(direction, index, children, horizontal);
     showListInConsole(navItem, ret, children);
-    return ret
+    return ret;
   };
   for (const direction of DIRECTIONS) {
-    navItem.internalDirections[direction] = listDirectionFnHelper.bind(undefined, direction);
+    navItem.internalDirections[direction] = listDirectionFnHelper.bind(
+      undefined,
+      direction
+    );
   }
 }
 
@@ -95,7 +124,6 @@ function initDirectionsList(
  * </div>
  */
 export class NavListDirective extends NavItemBaseDirective {
-
   override type = 'list';
 
   /**
@@ -111,7 +139,7 @@ export class NavListDirective extends NavItemBaseDirective {
 
   removeDirections(navItem: NavItem): void {
     for (const direction of DIRECTIONS) {
-      navItem.internalDirections[direction] = undefined
+      navItem.internalDirections[direction] = undefined;
     }
   }
 }

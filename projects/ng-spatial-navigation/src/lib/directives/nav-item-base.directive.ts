@@ -1,12 +1,15 @@
 import {
   AfterContentInit,
   Directive,
-  ElementRef, EventEmitter,
+  ElementRef,
+  EventEmitter,
   Inject,
   Input,
   OnChanges,
-  OnDestroy, OnInit,
-  Optional, Output,
+  OnDestroy,
+  OnInit,
+  Optional,
+  Output,
   Renderer2,
   SimpleChanges,
   SkipSelf,
@@ -26,17 +29,15 @@ import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
 import { CoerceBoolean } from '../decorators/coerce-boolean.decorator';
 import { debugLog } from '../utils/debug';
 import { DetectDomChangesService } from '../detect-dom-changes.service';
-import { Direction } from "../types/direction.type";
+import { Direction } from '../types/direction.type';
 
 @Directive()
 /**
  * Базовый класс для всех элементов навигации
  */
 export abstract class NavItemBaseDirective
-  implements OnDestroy, OnChanges, AfterContentInit, OnInit
-    , Directions
+  implements OnDestroy, OnChanges, AfterContentInit, OnInit, Directions
 {
-
   type = 'base';
 
   /**
@@ -74,63 +75,35 @@ export abstract class NavItemBaseDirective
    */
   @Input() tabshift: DirectionType;
 
-
   internalDirections: Partial<Directions> = {};
-
-  getDirection(direction: Direction): DirectionType {
-    return this[direction] || this.internalDirections[direction];
-  }
-
   /**
    * Флаг, что надо останавливаться на этом элементе при навигации назад (если мы уже на нем не находимся)
    */
   @CoerceBoolean() @Input() back: boolean | string | undefined;
-
   /**
    * Флаг, что надо устанавливать класс has-focus для элемента при получении фокуса (включая дочерние элементы)
    */
   @CoerceBoolean() @Input() needSetHasFocusClass: boolean | string | undefined;
-
   /**
    * Событие, которое вызывается когда элемент, получает фокус
    */
   @Output() vFocus = new EventEmitter();
-
   /**
    * Событие, которое вызывается когда элемент, теряет фокус
    */
   @Output() vBlur = new EventEmitter();
-
   /**
    * элемент, который был активен до ухода из фокуса в списке дочерних элементов
    */
   memory?: NavItem;
-
   /**
    * флаг, что элемент в фокусе или его дочерний элемент в фокусе
    */
   hasFocus = false;
-
   /**
    * список дочерних элементов
    */
   protected children: NavItem[] = [];
-
-  /**
-   * Родитель устанавливает направления для потомка
-   *
-   * Обычно это происходит при появлении потомка
-   */
-  abstract initDirections(navItem: NavItem): void;
-
-  /**
-   * Родитель удаляет направления для потомка
-   *
-   * Обычно это происходит при уничтожении потомка
-   */
-  abstract removeDirections(navItem: NavItem): void;
-
-  abstract initNavItem(): void;
 
   constructor(
     protected navigationService: NavigationService,
@@ -148,8 +121,28 @@ export abstract class NavItemBaseDirective
     public parentLayer: LayerNavItem,
     protected detectDomChangesService: DetectDomChangesService
   ) {
-    this.initNavItem()
+    this.initNavItem();
   }
+
+  getDirection(direction: Direction): DirectionType {
+    return this[direction] || this.internalDirections[direction];
+  }
+
+  /**
+   * Родитель устанавливает направления для потомка
+   *
+   * Обычно это происходит при появлении потомка
+   */
+  abstract initDirections(navItem: NavItem): void;
+
+  /**
+   * Родитель удаляет направления для потомка
+   *
+   * Обычно это происходит при уничтожении потомка
+   */
+  abstract removeDirections(navItem: NavItem): void;
+
+  abstract initNavItem(): void;
 
   setHasFocus(): void {
     this.vFocus.emit();
@@ -231,14 +224,13 @@ export abstract class NavItemBaseDirective
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-  }
+  ngOnChanges(changes: SimpleChanges): void {}
 
   ngOnInit(): void {
     if (!this.navId) {
       this.navId =
         this.el.nativeElement.id ||
-        (this.parent && this.parent.generateId(this));
+        (this.parent && this.parent.generateIdForChild(this));
     }
     this.navigationItemsStoreService.addNavItem(this);
   }
@@ -305,19 +297,7 @@ export abstract class NavItemBaseDirective
     return this.memory?.findFocus() || listFindFocus();
   }
 
-  // logTree(): void {
-  //   console.log(this.el.nativeElement);
-  //   console.log('up', this.up);
-  //   console.log('down', this.down);
-  //   console.log('right', this.right);
-  //   console.log('left', this.left);
-  //   // @ts-ignore
-  //   console.log('focusedNavItem', this.navigationService.focusedNavItem?.el.nativeElement);
-  //   this.children.forEach(item => item.logTree())
-  // }
-
-  generateId(child: NavItem): string {
+  generateIdForChild(child: NavItem): string {
     return `${this.navId}-${this.children.length}`;
   }
-
 }

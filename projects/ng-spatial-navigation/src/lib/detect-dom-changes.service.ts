@@ -20,10 +20,10 @@ export class DetectDomChangesService {
       mutations.forEach((mutation) => {
         if (mutation.type === 'childList') {
           mutation.addedNodes.forEach((node) => {
-              this.onAddedNode(node);
+            this.onAddedNode(node);
           });
           mutation.removedNodes.forEach((node) => {
-              this.onRemovedNode(node);
+            this.onRemovedNode(node);
           });
         }
       });

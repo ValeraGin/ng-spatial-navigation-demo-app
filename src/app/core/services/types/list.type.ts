@@ -1,4 +1,4 @@
-import { Pagination } from "./pagination";
+import { PaginationType } from './pagination.type';
 
 export type MovieShort = {
   name: string;
@@ -13,4 +13,4 @@ export type MovieShort = {
   popularity: number;
 };
 
-export type ListResponse = Pagination<MovieShort>
+export type ListResponse = PaginationType<MovieShort>;

@@ -3,7 +3,6 @@ import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { CoerceBoolean } from '../decorators/coerce-boolean.decorator';
 import { NavLayerDirective } from './nav-layer.directive';
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
-import { prettyPrint } from "../utils/tree-pretty-print";
 
 @Directive({
   selector: '[navRoot]',
@@ -26,9 +25,6 @@ import { prettyPrint } from "../utils/tree-pretty-print";
  * Если так произошло что внутри корневого элемента есть другой корневой элемент, то он становится просто слоем
  */
 export class NavRootDirective extends NavLayerDirective {
-
-  override type = 'root';
-
   /**
    * Список всех корневых элемент
    *
@@ -44,7 +40,8 @@ export class NavRootDirective extends NavLayerDirective {
    *
    * Но если есть другой рут элемент то навигация будет работать только на нем
    */
-  @CoerceBoolean() @Input() isKeyboardNavigationEnabled : string | boolean = true;
+  @CoerceBoolean() @Input() isKeyboardNavigationEnabled: string | boolean =
+    true;
 
   /**
    * Если установлен флаг, то будут слушаться события только на этом элементе, а не на всем документе
@@ -93,7 +90,9 @@ export class NavRootDirective extends NavLayerDirective {
     if (!this.imFakeRoot) {
       this.keyboardService.deleteRoot(this.el.nativeElement, !this.noGlobal);
       this.detectDomChangesService.stopObserver(this.el.nativeElement);
-      NavRootDirective.roots = NavRootDirective.roots.filter((root) => root !== this);
+      NavRootDirective.roots = NavRootDirective.roots.filter(
+        (root) => root !== this
+      );
     }
   }
 }

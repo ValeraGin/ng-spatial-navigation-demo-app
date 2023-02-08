@@ -2,7 +2,7 @@ import { Inject, Injectable, NgZone } from '@angular/core';
 import { NavigationService } from './navigation.service';
 import { DOCUMENT } from '@angular/common';
 import { KeyboardKeysEnum } from './enums/keyboard-keys.enum';
-import { debugWarn } from "./utils/debug";
+import { debugWarn } from './utils/debug';
 
 /**
  * Минимальный (экстремальный) интервал между повторными нажатиями клавиш при удержании
@@ -14,7 +14,6 @@ const EXTREME_INTERVAL_REPEAT = 200;
 /** @dynamic */
 @Injectable()
 export class KeyboardService {
-
   /**
    * Интервал между повторными нажатиями клавиш при удержании
    *
@@ -103,8 +102,8 @@ export class KeyboardService {
           debugWarn('Не найден элемент для клика');
           return false;
         }
-        case KeyboardKeysEnum.BACKSPACE:
-          return this.navigationService.back()
+      case KeyboardKeysEnum.BACKSPACE:
+        return this.navigationService.back();
       default:
         return false;
     }

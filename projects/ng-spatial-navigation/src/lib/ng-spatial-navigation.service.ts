@@ -1,22 +1,15 @@
 import { Injectable } from '@angular/core';
 import { NavigationService } from './navigation.service';
-import { NavigationItemsStoreService } from './navigation-items-store.service';
 import { setDebugLevel } from './utils/debug';
-import { merge } from "./utils/deep-merge";
-import { DirectionType } from "./types/directions.type";
+import { merge } from './utils/deep-merge';
+import { DirectionType } from './types/directions.type';
 
 @Injectable()
 /**
  * Сервис для управления навигацией из приложения (мост между приложением и библиотекой навигации)
  */
 export class NgSpatialNavigationService {
-
-
-  constructor(
-    private navigationService: NavigationService,
-    private navigationItemsStoreService: NavigationItemsStoreService
-  ) {
-  }
+  constructor(private navigationService: NavigationService) {}
 
   /**
    * Снимает фокус если он есть и переводит в режим ожидания элемента
@@ -62,7 +55,10 @@ export class NgSpatialNavigationService {
   }
 
   setSettings(settings: Partial<NavigationService['settings']>): void {
-    this.navigationService.settings = merge(this.navigationService.settings, settings) as NavigationService['settings'];
+    this.navigationService.settings = merge(
+      this.navigationService.settings,
+      settings
+    ) as NavigationService['settings'];
   }
 
   /**

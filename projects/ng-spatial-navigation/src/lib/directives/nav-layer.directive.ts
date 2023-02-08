@@ -4,7 +4,7 @@ import { NavItem } from '../types/nav-item.type';
 import { NavListDirective } from './nav-list.directive';
 
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
-import { DIRECTIONS } from "../types/direction.type";
+import { DIRECTIONS } from '../types/direction.type';
 
 @Directive({
   selector: '[navLayer]',
@@ -20,7 +20,6 @@ import { DIRECTIONS } from "../types/direction.type";
   ],
 })
 export class NavLayerDirective extends NavListDirective {
-
   override type = 'layer';
 
   prevMemory?: NavItem;

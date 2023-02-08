@@ -1,30 +1,24 @@
-<div
-  class="side-menu"
-  id="side-menu"
-  navList
-  back
-  needSetHasFocusClass
->
-  <h1 class="font-bold text-xl m-2">Апельсин ТВ</h1>
+<div back class="side-menu" id="side-menu" navList needSetHasFocusClass>
+  <h1 class="font-bold text-xl m-2">{{appName}}</h1>
   <ul class="side-menu__list">
     <li
-      class="side-menu__item"
-      *ngFor="let item of items"
-      [routerLink]="item.link"
+      *ngFor="let item of menu"
       [queryParams]="item.queryParams"
-      routerLinkActive="active"
+      [right]="menuItemRightActionCallback"
+      [routerLink]="item.link"
+      class="side-menu__item"
       navFocusable
       noNeedScroll
-      [right]="menuItemRightActionCallback"
+      routerLinkActive="active"
     >
       <a class="side-menu__link">{{ item.title }}</a>
     </li>
     <li
+      (click)="fullscreenToggle()"
+      [id]="'sidemenu_full'"
       class="side-menu__item"
       navFocusable
       noNeedScroll
-      [id]="'sidemenu_full'"
-      (click)="fullscreenToggle()"
     >
       <a class="side-menu__link">Полный экран</a>
     </li>

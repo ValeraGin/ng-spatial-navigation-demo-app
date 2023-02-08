@@ -1,5 +1,5 @@
 export interface Tree {
-  navId: string | undefined
+  navId: string | undefined;
   children?: Tree[];
 }
 

@@ -1,13 +1,8 @@
-import {
-  Directive,
-  forwardRef,
-  HostListener,
-  Input,
-} from '@angular/core';
+import { Directive, forwardRef, HostListener, Input } from '@angular/core';
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { FocusableNavItem } from '../types/nav-item.type';
 import { NavListDirective } from './nav-list.directive';
-import { CoerceBoolean } from "../decorators/coerce-boolean.decorator";
+import { CoerceBoolean } from '../decorators/coerce-boolean.decorator';
 
 @Directive({
   selector: '[navFocusable]',
@@ -24,7 +19,6 @@ import { CoerceBoolean } from "../decorators/coerce-boolean.decorator";
  * <div navFocusable> Элемент, который может принять фокус </div>
  */
 export class NavFocusableDirective extends NavListDirective {
-
   override type = 'focusable';
 
   /**

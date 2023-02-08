@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
 import { NavItem } from './types/nav-item.type';
-import { debugLog } from "./utils/debug";
+import { debugLog } from './utils/debug';
 
 @Injectable()
 export class NavigationItemsStoreService {
+  private navItems: NavItem[] = [];
 
   constructor() {
     navStoreService = this;
     debugLog('create NavigationItemsStoreService');
   }
-
-  private navItems: NavItem[] = [];
 
   getNavItemByElement(element: Element, silent = false): NavItem | undefined {
     const navItem = this.navItems.find(
@@ -32,16 +31,19 @@ export class NavigationItemsStoreService {
       return [navItem];
     } else {
       if (node instanceof Element) {
-        return Array.from(node.children).map((child) => {
-          return this.getNavItemByNodeRecursive(child);
-        }).flat(1).filter(Boolean);
+        return Array.from(node.children)
+          .map((child) => {
+            return this.getNavItemByNodeRecursive(child);
+          })
+          .flat(1)
+          .filter(Boolean);
       }
     }
     return [];
   }
 
   getNavItemById(id: string, silent = false): NavItem | undefined {
-    const navItem = this.navItems.find((navItem) => navItem.navId === id)
+    const navItem = this.navItems.find((navItem) => navItem.navId === id);
     if (navItem) {
       return navItem;
     } else {
@@ -67,14 +69,13 @@ export class NavigationItemsStoreService {
   }
 
   showAll() {
-   // console.table(this.navItems.map((navItem) => { return { id: navItem.navId, el: navItem.el.nativeElement, isRemoved: navItem.isRemoved } }));
+    // console.table(this.navItems.map((navItem) => { return { id: navItem.navId, el: navItem.el.nativeElement, isRemoved: navItem.isRemoved } }));
   }
-
 }
 
 let navStoreService: NavigationItemsStoreService;
 
 // @ts-ignore
 window['debugger'] = {
-  showAll: () => navStoreService.showAll()
-}
+  showAll: () => navStoreService.showAll(),
+};

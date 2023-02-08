@@ -1,4 +1,3 @@
-
 export interface BelongsToCollection {
   id: number;
   name: string;

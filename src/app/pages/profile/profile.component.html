@@ -1,5 +1,5 @@
-<div class="flex" navList horizontal id="profile_list">
-  <div class="w-1/4" *ngFor="let profile of profiles; let i = index">
+<div class="flex" horizontal id="profile_list" navList>
+  <div *ngFor="let profile of profiles; let i = index" class="w-1/4">
     <div class="bg-black text-white p-6 rounded-lg place-content-center">
       <img
         [src]="'https://picsum.photos/id/' + (i + 1000) + '/300/300'"
@@ -9,9 +9,9 @@
       <h1 class="text-2xl text-center mt-4">{{ profile.name }}</h1>
       <div class="text-center mt-4">
         <button
+          (click)="setProfile(profile)"
           class="bg-gray-800 text-white p-2 rounded invisible"
           navFocusable
-          (click)="setProfile(profile)"
         >
           Выбрать
         </button>
