@@ -1,12 +1,12 @@
 import { NavItem } from './nav-item.type';
 import { Direction } from "./direction.type";
 
-export type DirectionFnResult = NavItem | string | undefined ;
+export type DirectionFnResult = NavItem | string | BlockNavigation | undefined ;
 
 /**
  * Функция, которая возвращает NavItem или идентификатор элемента навигации
  */
-export type DirectionFn = (() => DirectionFnResult) | (() => Promise<DirectionFnResult>) ;
+export type DirectionFn = ((currentItem?: NavItem) => DirectionFnResult) | ((currentItem?: NavItem) => Promise<DirectionFnResult>) ;
 
 /**
  * Объект, который блокирует навигацию в данном направлении (причина указывается в свойстве reason)

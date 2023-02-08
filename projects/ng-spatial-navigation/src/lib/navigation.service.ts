@@ -6,10 +6,10 @@ import { Direction } from './types/direction.type';
 import { NavigationItemsStoreService } from './navigation-items-store.service';
 import { FocusStatus } from './types/focus-status.type';
 import { isBlockNavigation } from './type-guards/is-block-navigation';
-import { debugGroupCollapsed, debugGroupEnd, debugLog } from './utils/debug';
+import { debugError, debugGroupCollapsed, debugGroupEnd, debugLog } from './utils/debug';
 
 import scrollIntoView, { Options } from 'scroll-into-view-if-needed';
-import { DirectionType } from './types/directions.type';
+import { BlockNavigation, DirectionType } from './types/directions.type';
 import { isMyChild } from "./utils/is-my-child";
 
 /**
@@ -229,17 +229,13 @@ export class NavigationService {
     }
   }
 
-  async getDirection(direction: DirectionType): Promise<NavItem | undefined> {
+  async execDirection(direction: DirectionType, currentItem?: NavItem): Promise<NavItem | BlockNavigation | undefined> {
     const directionDataWithElementOrPromise =
-      typeof direction === 'function' ? direction() : direction;
+      typeof direction === 'function' ? direction(currentItem) : direction;
     const directionDataWithElement =
       directionDataWithElementOrPromise instanceof Promise
         ? await directionDataWithElementOrPromise
         : directionDataWithElementOrPromise;
-    if (isBlockNavigation(directionDataWithElement)) {
-      debugLog(directionDataWithElement.reason);
-      return undefined;
-    }
     const directionData =
       directionDataWithElement instanceof HTMLElement
         ? this.navigationItemsStoreService.getNavItemByElement(
@@ -254,16 +250,15 @@ export class NavigationService {
   async navigate(direction: Direction): Promise<boolean> {
     const getFromDirectionRecursive = async (
       currentItem: NavItem
-    ): Promise<NavItem | undefined> => {
-      const navItem = await this.getDirection(currentItem[direction]);
-      if (navItem === undefined) {
-        if (currentItem.parent) {
-          return getFromDirectionRecursive(currentItem.parent);
-        } else {
-          return;
-        }
-      } else {
+    ): Promise<NavItem | BlockNavigation | undefined> => {
+      const navItem = await this.execDirection(currentItem.getDirection(direction), currentItem);
+      if (navItem) {
         return navItem;
+      }
+      if (currentItem.parent) {
+        return getFromDirectionRecursive(currentItem.parent);
+      } else {
+        return;
       }
     };
 
@@ -274,6 +269,10 @@ export class NavigationService {
         return;
       }
       const fromDirection = await getFromDirectionRecursive(currentNavItem);
+      if (isBlockNavigation(fromDirection)) {
+        debugLog(`Навигация в ${direction} направление заблокирована ${fromDirection.reason}`);
+        return;
+      }
       if (fromDirection) {
         const findFocus = fromDirection.findFocus();
         if (findFocus) {
@@ -306,6 +305,13 @@ export class NavigationService {
    * то вы потеряете фокус, так что осторожнее с этим методом
    */
   waitForElement(id: string): void {
+    const targetNavItem = this.navigationItemsStoreService.getNavItemById(id, true);
+    if (targetNavItem) {
+      if (!this.focusWithFind(targetNavItem)) {
+        debugError('Элемент найден, но не может принять фокус');
+      }
+      return;
+    }
     if (this.status === 'default') {
       if (this.focusedNavItem) {
         this.focusedNavItem.unsetFocus();
@@ -314,6 +320,7 @@ export class NavigationService {
     }
     this.status = 'waiting_id';
     this.waitingId = id;
+    console.log('Ожидаем элемент с идентификатором', id)
   }
 
   afterContentInitNavItem(navItem: NavItem): void {
@@ -325,9 +332,17 @@ export class NavigationService {
         }
         break;
       case 'waiting_id':
+        if (!this.activeLayer || (this.activeLayer && isMyChild(this.activeLayer, navItem, 'parent'))) {
+          this.navItemsForCheckFocus.push(navItem);
+        }
         if (this.waitingId) {
           if (navItem.navId === this.waitingId) {
-            this.focusWithFind(navItem);
+            if (!this.focusWithFind(navItem)) {
+              debugError('Элемент найден, но не может принять фокус - переходим в waiting');
+              this.status = 'waiting';
+              this.markFocusForCheck();
+            }
+            return;
           }
         } else {
           console.error(
@@ -347,7 +362,11 @@ export class NavigationService {
       console.error('Пустой аргумент для setFocus! Пожалуйста, проверяйте что передаете в этот метод!');
       return;
     }
-    const navItem = await this.getDirection(direction);
+    const navItem = await this.execDirection(direction);
+    if (isBlockNavigation(navItem)) {
+      throw new Error('Какой дурак додумался передавать в setFocus блокирующий элемент?');
+    }
+    console.log(navItem)
     if (navItem) {
       this.focusWithFind(navItem);
     } else {

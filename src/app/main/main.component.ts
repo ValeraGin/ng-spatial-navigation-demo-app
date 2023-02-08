@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {  Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Movie } from './movie.interface';
-import { map, mergeMap, Observable } from 'rxjs';
+import { map, mergeMap, Observable, tap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { MainService } from './main.service';
 import { NgSpatialNavigationService } from "ng-spatial-navigation";
@@ -24,14 +24,20 @@ export class MainComponent implements OnInit {
     private mainService: MainService,
     private ngSpatialNavigationService: NgSpatialNavigationService
   ) {
-    console.log('main component')
     this.lines$ = this.activatedRoute.queryParams.pipe(
       map((params) => params['type'] as string),
       mergeMap((type) => this.mainService.getLinesByType(type as any)),
+      tap((lines) => {
+        // После обновления данных ждем пока отрендерится первый ряд и отфокусируем его
+        if (lines.length) {
+          this.ngSpatialNavigationService.waitForElement('movies-row_0');
+        }
+      })
     );
   }
 
   ngOnInit(): void {
-    this.ngSpatialNavigationService.setFocus(document.getElementById('movies-row-1_1')!);
+
   }
+
 }

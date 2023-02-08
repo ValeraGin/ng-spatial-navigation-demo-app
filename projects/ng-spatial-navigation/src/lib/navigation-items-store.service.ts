@@ -40,12 +40,14 @@ export class NavigationItemsStoreService {
     return [];
   }
 
-  getNavItemById(id: string): NavItem | undefined {
+  getNavItemById(id: string, silent = false): NavItem | undefined {
     const navItem = this.navItems.find((navItem) => navItem.navId === id)
     if (navItem) {
       return navItem;
     } else {
-      console.error('NavItem not found by id', id);
+      if (!silent) {
+        console.error('NavItem not found by id', id);
+      }
       return undefined;
     }
   }

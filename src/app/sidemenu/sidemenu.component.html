@@ -17,11 +17,13 @@
   <ul class="side-menu__list">
     <li
       class="side-menu__item"
-      *ngFor="let item of items; let i = index"
+      *ngFor="let item of items"
       [routerLink]="item.link"
       [queryParams]="item.queryParams"
+      routerLinkActive="active"
       navFocusable
       noNeedScroll
+      [right]="menuItemRightActionCallback"
     >
       <a class="side-menu__link">{{ item.title }}</a>
     </li>

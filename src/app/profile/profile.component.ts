@@ -1,11 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import {
+  NgSpatialNavigationService
+} from "ng-spatial-navigation";
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
   profiles = [
     {
       name: 'Федя',
@@ -29,7 +32,14 @@ export class ProfileComponent {
     },
   ];
 
+  constructor(private ngSpatialNavigationService: NgSpatialNavigationService) {
+  }
+
   setProfile(profile: { image: string; name: string }) {
     alert('Выбран профиль: ' + profile.name);
+  }
+
+  ngOnInit() {
+    this.ngSpatialNavigationService.waitForElement('profile_list');
   }
 }

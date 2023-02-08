@@ -4,13 +4,7 @@ import { NavItem } from '../types/nav-item.type';
 import { NavListDirective } from './nav-list.directive';
 
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
-import { BlockNavigation } from "../types/directions.type";
 import { DIRECTIONS } from "../types/direction.type";
-
-const layerBlockNavigationToken: BlockNavigation = {
-  type: 'block',
-  reason: 'Дальше нельзя - граница слоя',
-};
 
 @Directive({
   selector: '[navLayer]',
@@ -35,7 +29,10 @@ export class NavLayerDirective extends NavListDirective {
 
   override initNavItem() {
     for (const direction of DIRECTIONS) {
-      this[direction] = layerBlockNavigationToken;
+      this.internalDirections[direction] = {
+        type: 'block',
+        reason: 'Дальше нельзя - граница слоя',
+      };
     }
   }
 

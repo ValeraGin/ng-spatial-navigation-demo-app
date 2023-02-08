@@ -26,13 +26,16 @@ import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
 import { CoerceBoolean } from '../decorators/coerce-boolean.decorator';
 import { debugLog } from '../utils/debug';
 import { DetectDomChangesService } from '../detect-dom-changes.service';
+import { Direction } from "../types/direction.type";
 
 @Directive()
 /**
  * Базовый класс для всех элементов навигации
  */
 export abstract class NavItemBaseDirective
-  implements OnDestroy, OnChanges, AfterContentInit, OnInit, Directions {
+  implements OnDestroy, OnChanges, AfterContentInit, OnInit
+    , Directions
+{
 
   type = 'base';
 
@@ -72,7 +75,21 @@ export abstract class NavItemBaseDirective
   @Input() tabshift: DirectionType;
 
 
+  internalDirections: Partial<Directions> = {};
+
+  getDirection(direction: Direction): DirectionType {
+    return this[direction] || this.internalDirections[direction];
+  }
+
+  /**
+   * Флаг, что надо останавливаться на этом элементе при навигации назад (если мы уже на нем не находимся)
+   */
   @CoerceBoolean() @Input() back: boolean | string | undefined;
+
+  /**
+   * Флаг, что надо устанавливать класс has-focus для элемента при получении фокуса (включая дочерние элементы)
+   */
+  @CoerceBoolean() @Input() needSetHasFocusClass: boolean | string | undefined;
 
   /**
    * Событие, которое вызывается когда элемент, получает фокус
@@ -138,6 +155,9 @@ export abstract class NavItemBaseDirective
     this.vFocus.emit();
     this.hasFocus = true;
     debugLog('Элемент получил фокус', this.el.nativeElement);
+    if (this.needSetHasFocusClass) {
+      this.renderer.addClass(this.el.nativeElement, 'has-focus');
+    }
     if (this.parent) {
       this.parent.childFocusReceive(this);
     }
@@ -147,6 +167,9 @@ export abstract class NavItemBaseDirective
     this.vBlur.emit();
     this.hasFocus = false;
     debugLog('Элемент потерял фокус', this.el.nativeElement);
+    if (this.needSetHasFocusClass) {
+      this.renderer.removeClass(this.el.nativeElement, 'has-focus');
+    }
     if (this.parent) {
       this.parent.childFocusLost(this, nextFocus);
     }

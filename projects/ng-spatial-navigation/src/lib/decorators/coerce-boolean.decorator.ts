@@ -1,12 +1,11 @@
 /**
  * Декоратор для приведения атрибута к булевому типу
  *
- * Дает возможность использовать атрибуты вида: isDisabled, [isDisabled]="true", [isDisabled]="false"
+ * Дает возможность использовать атрибуты вида: isDisabled, [isDisabled]="true"
  *
  * @example
  * export class TestClass {
- * @CoerceBoolean()
- * public isDisabled: boolean;
+ * @CoerceBoolean() isDisabled: boolean | string | undefined;
  * }
  *
  * <test-class isDisabled></test-class>

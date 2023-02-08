@@ -3,6 +3,7 @@ import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { CoerceBoolean } from '../decorators/coerce-boolean.decorator';
 import { NavLayerDirective } from './nav-layer.directive';
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
+import { prettyPrint } from "../utils/tree-pretty-print";
 
 @Directive({
   selector: '[navRoot]',
@@ -110,6 +111,5 @@ export class NavRootDirective extends NavLayerDirective {
 
 // @ts-ignore
 window['showAllNavNodes'] = () => NavRootDirective.roots.forEach((root) => {
-  // @ts-ignore
   prettyPrint(root, 0);
 });

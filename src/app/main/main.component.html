@@ -1,16 +1,16 @@
-<div navlist id="main-wrapper">
+
   <ng-container *ngIf="lines$ | async as lines">
-    <div class="mt-5" *ngFor="let line of lines; let i = index">
-      <h1 class="font-bold text-2xl ml-20 mb-5 text-white">{{ line.title }}</h1>
+    <div class="mt-5 movies-row" *ngFor="let line of lines; let lineIndex = index" navList needSetHasFocusClass>
+      <h1 class="font-bold text-2xl ml-10 mb-5 text-white">{{ line.title }}</h1>
       <div class="overflow-hidden">
-        <div class="flex" [id]="'movies-row_' + i + line.url" navList horizontal>
+        <div class="flex" [id]="'movies-row_' + lineIndex" navList horizontal>
           <div
-            *ngFor="let movie of line.data; let i = index"
-            navFocusable
-            [back]="i === 0"
-            class="mr-10"
-            [class.ml-20]="i === 0"
+            *ngFor="let movie of line.data; let movieIndex = index"
+            class="movie mr-10"
             routerLink="/movie/{{ movie.id }}"
+            navFocusable
+            [id]="'movies-row_' + lineIndex + '_' + movieIndex"
+            [back]="movieIndex === 0"
           >
             <div class="rounded overflow-hidden shadow-lg w-full">
               <img
@@ -27,8 +27,8 @@
           </div>
           <div
             navFocusable
-            [id]="'movies-row_' + i + '_more'"
-            class="mr-10"
+            [id]="'movies-row_' + lineIndex + '_more'"
+            class="movie mr-10"
             routerLink="/category"
             [queryParams]="{ url: line.url }"
           >
@@ -52,4 +52,4 @@
       </div>
     </div>
   </ng-container>
-</div>
+

@@ -66,7 +66,7 @@ function initDirectionsList(
     return ret
   };
   for (const direction of DIRECTIONS) {
-    navItem[direction] = listDirectionFnHelper.bind(undefined, direction);
+    navItem.internalDirections[direction] = listDirectionFnHelper.bind(undefined, direction);
   }
 }
 
@@ -111,7 +111,7 @@ export class NavListDirective extends NavItemBaseDirective {
 
   removeDirections(navItem: NavItem): void {
     for (const direction of DIRECTIONS) {
-      navItem[direction] = undefined
+      navItem.internalDirections[direction] = undefined
     }
   }
 }

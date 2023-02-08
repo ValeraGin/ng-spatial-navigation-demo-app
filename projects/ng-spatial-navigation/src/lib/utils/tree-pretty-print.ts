@@ -3,7 +3,7 @@ export interface Tree {
   children?: Tree[];
 }
 
-export const prettyPrint = (tree: Tree, depth: number) => {
+export const prettyPrint = (tree: any, depth: number) => {
   if (depth === 0) {
     console.log('// ' + tree.navId);
   } else if (depth === 1) {
@@ -13,6 +13,6 @@ export const prettyPrint = (tree: Tree, depth: number) => {
   }
 
   if (tree.children) {
-    tree.children.forEach((curr) => prettyPrint(curr, depth + 1));
+    tree.children.forEach((curr: any) => prettyPrint(curr, depth + 1));
   }
 };
