@@ -1,17 +1,9 @@
 <div
   class="side-menu"
-  #sidemenu
   id="side-menu"
   navList
   back
-  (vBlur)="
-    sidemenu.classList.remove('open');
-    container.classList.remove('menu-open');
-  "
-  (vFocus)="
-    sidemenu.classList.add('open');
-    container.classList.add('menu-open');
-  "
+  needSetHasFocusClass
 >
   <h1 class="font-bold text-xl m-2">Апельсин ТВ</h1>
   <ul class="side-menu__list">
@@ -37,8 +29,4 @@
       <a class="side-menu__link">Полный экран</a>
     </li>
   </ul>
-</div>
-
-<div navList #container id="sidemenu_container">
-  <router-outlet></router-outlet>
 </div>

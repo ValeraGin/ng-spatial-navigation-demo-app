@@ -1,4 +1,6 @@
-export type Movie = {
+import { Pagination } from "./pagination";
+
+export type MovieShort = {
   name: string;
   id: number;
   title: string;
@@ -11,9 +13,4 @@ export type Movie = {
   popularity: number;
 };
 
-export type MovieResponse = {
-  page: number;
-  results: Movie[];
-  total_pages: number;
-  total_results: number;
-};
+export type ListResponse = Pagination<MovieShort>

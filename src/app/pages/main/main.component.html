@@ -1,0 +1,54 @@
+<ng-container *ngIf="lines$ | async as lines">
+  <div class="mt-5 movies-row" *ngFor="let line of lines; let lineIndex = index" navList needSetHasFocusClass>
+    <h1 class="font-bold text-2xl ml-10 mb-5 text-white">{{ line.title }}</h1>
+    <div class="overflow-hidden">
+      <div class="flex" [id]="'movies-row_' + lineIndex" navList horizontal>
+        <div
+          *ngFor="let movie of line.data; let movieIndex = index"
+          class="movie mr-10"
+          routerLink="/movie/{{ movie.id }}"
+          navFocusable
+          [id]="'movies-row_' + lineIndex + '_' + movieIndex"
+          [back]="movieIndex === 0"
+        >
+          <div class="rounded overflow-hidden shadow-lg w-full">
+            <img
+              [src]="getPosterUrl(movie.poster_path)"
+              alt="{{ movie.title }}"
+            />
+            <div class="px-6 py-4">
+              <div class="font-bold text-l text-white mb-2 truncate w-60">
+                {{ movie.title || movie.name }}
+              </div>
+              <!--          <p class="text-gray-700 text-base">{{ movie.description }}</p>-->
+            </div>
+          </div>
+        </div>
+        <div
+          navFocusable
+          [id]="'movies-row_' + lineIndex + '_more'"
+          class="movie mr-10"
+          routerLink="/category"
+          [queryParams]="{ url: line.url }"
+        >
+          <div class="rounded overflow-hidden shadow-lg w-full">
+            <div
+              class="aspect-[2/3] bg-gradient-to-r from-violet-500 to-fuchsia-500 flex justify-center items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                   stroke="currentColor" class="w-24 h-24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div class="px-6 py-4">
+              <div class="font-bold text-l text-white mb-2 truncate w-60">
+                Показать еще
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+

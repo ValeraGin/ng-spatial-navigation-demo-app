@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { MainComponent } from './main/main.component';
-import { ProfileComponent } from './profile/profile.component';
-import { MovieCardComponent } from './movie-card/movie-card.component';
-import { SidemenuComponent } from './sidemenu/sidemenu.component';
-import { CategoryComponent } from "./category/category.component";
+import { MainLayoutComponent } from "./layouts/main-layout/main-layout.component";
+import { MainComponent } from "./pages/main/main.component";
+import { ProfileComponent } from "./pages/profile/profile.component";
+import { MovieCardComponent } from "./pages/movie-card/movie-card.component";
+import { CategoryComponent } from "./pages/category/category.component";
 
 const routes: Routes = [
   {
     path: '',
-    component: SidemenuComponent,
+    component: MainLayoutComponent,
     children: [
       {
         path: 'main',

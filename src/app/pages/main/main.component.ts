@@ -2,12 +2,15 @@ import {  Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Movie } from './movie.interface';
 import { map, mergeMap, Observable, tap } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MainService } from './main.service';
-import { NgSpatialNavigationService } from "ng-spatial-navigation";
+import { NgSpatialNavigationModule, NgSpatialNavigationService } from "ng-spatial-navigation";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: 'app-main',
+  standalone: true,
+  imports: [CommonModule, RouterModule, NgSpatialNavigationModule],
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
 })

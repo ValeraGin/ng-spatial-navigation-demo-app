@@ -38,11 +38,3 @@
     text-decoration: none;
   }
 }
-
-#container {
-  transition: padding-left 0.5s ease-in-out;
-
-  &.menu-open {
-    padding-left: 300px;
-  }
-}

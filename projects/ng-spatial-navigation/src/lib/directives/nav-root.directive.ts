@@ -97,19 +97,3 @@ export class NavRootDirective extends NavLayerDirective {
     }
   }
 }
-
-// global debug - show all nodes
-// @ts-ignore
-// window['showAllNavNodes'] = () => NavRootDirective.roots.forEach((root) => {
-//   root.logTree()
-// });
-
-
-
-
-
-
-// @ts-ignore
-window['showAllNavNodes'] = () => NavRootDirective.roots.forEach((root) => {
-  prettyPrint(root, 0);
-});

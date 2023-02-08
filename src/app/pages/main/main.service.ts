@@ -10,18 +10,6 @@ export class MainService {
   constructor(private http: HttpClient) {
   }
 
-  getPageTitleByType(type: 'movies' | 'tvs' | 'main' = 'main') {
-    switch (type) {
-      case 'movies':
-        return 'Фильмы';
-      case 'tvs':
-        return 'Сериалы';
-      default:
-      case 'main':
-        return 'Главная';
-    }
-  }
-
   getLine(title: string, url: string) {
     return this.http.get<MovieResponse>(url).pipe(
       map((data) => {

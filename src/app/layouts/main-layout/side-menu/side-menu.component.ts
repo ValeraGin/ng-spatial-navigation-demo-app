@@ -1,15 +1,17 @@
 import { Component } from '@angular/core';
-import { Router } from "@angular/router";
-import { NavItem, BlockNavigation, DirectionFnResult } from "ng-spatial-navigation";
+import { CommonModule } from '@angular/common';
+import { RouterModule } from "@angular/router";
+import { NavItem, DirectionFnResult, BlockNavigation } from "ng-spatial-navigation";
+import { NgSpatialNavigationModule } from "ng-spatial-navigation";
 
 @Component({
-  selector: 'app-sidemenu',
-  templateUrl: './sidemenu.component.html',
-  styleUrls: ['./sidemenu.component.scss'],
+  selector: 'app-side-menu',
+  standalone: true,
+  imports: [CommonModule, RouterModule, NgSpatialNavigationModule],
+  templateUrl: './side-menu.component.html',
+  styleUrls: ['./side-menu.component.scss']
 })
-export class SidemenuComponent {
-
-  constructor(private router: Router) {}
+export class SideMenuComponent  {
 
   // Происходит при нажатии на кнопку Вправо на пункте меню
   menuItemRightActionCallback = async (navItem?: NavItem): Promise<DirectionFnResult> => {
@@ -40,4 +42,5 @@ export class SidemenuComponent {
       document.documentElement.requestFullscreen();
     }
   }
+
 }

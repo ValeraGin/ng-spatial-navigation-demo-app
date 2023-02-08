@@ -2,10 +2,14 @@ import { Component } from '@angular/core';
 import { Movie, MovieResponse } from '../main/movie.interface';
 import { HttpClient } from '@angular/common/http';
 import { map, mergeMap, Observable } from "rxjs";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterModule } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import { NgSpatialNavigationModule } from 'ng-spatial-navigation';
 
 @Component({
   selector: 'app-category',
+  standalone: true,
+  imports: [CommonModule, RouterModule, NgSpatialNavigationModule],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss'],
 })
@@ -16,7 +20,10 @@ export class CategoryComponent {
     return `https://image.tmdb.org/t/p/w500${path}`;
   }
 
-  constructor(private http: HttpClient, private activatedRoute: ActivatedRoute) {
+  constructor(
+    private http: HttpClient,
+    private activatedRoute: ActivatedRoute
+  ) {
     this.movies$ = this.activatedRoute.queryParams.pipe(
       map((params) => params['url'] as string),
       mergeMap((category) => this.getCategoryMovies$(category))

@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { map, mergeMap, Observable } from "rxjs";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 import * as Movie from "./movie.interface";
+import { CommonModule } from "@angular/common";
+import { NgSpatialNavigationModule } from 'ng-spatial-navigation';
 
 @Component({
   selector: 'app-movie-card',
+  standalone: true,
+  imports: [CommonModule, RouterModule, NgSpatialNavigationModule],
   templateUrl: './movie-card.component.html',
   styleUrls: ['./movie-card.component.scss'],
 })

@@ -6,22 +6,10 @@ import { AppComponent } from './app.component';
 
 import { NgSpatialNavigationModule } from 'ng-spatial-navigation';
 import { HttpClientModule } from '@angular/common/http';
-import { SidemenuComponent } from './sidemenu/sidemenu.component';
-import { MainComponent } from './main/main.component';
-import { CategoryComponent } from './category/category.component';
-import { ProfileComponent } from './profile/profile.component';
-import { MovieCardComponent } from './movie-card/movie-card.component';
-import { ApelsinTVCustomRouteReuseStrategy } from './reuse.strategy';
-import { RouteReuseStrategy } from "@angular/router";
 
 @NgModule({
   declarations: [
     AppComponent,
-    SidemenuComponent,
-    MainComponent,
-    CategoryComponent,
-    ProfileComponent,
-    MovieCardComponent,
   ],
   imports: [
     BrowserModule,
