@@ -8,6 +8,7 @@ import { NavigationItemsStoreService } from './navigation-items-store.service';
 import { NavigationService } from './navigation.service';
 import { KeyboardService } from './keyboard.service';
 import { NgSpatialNavigationService } from "./ng-spatial-navigation.service";
+import { DetectDomChangesService } from "./detect-dom-changes.service";
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { NgSpatialNavigationService } from "./ng-spatial-navigation.service";
     KeyboardService,
     NavigationService,
     NavigationItemsStoreService,
-    NgSpatialNavigationService
+    DetectDomChangesService,
+    NgSpatialNavigationService,
   ]
 })
 /**

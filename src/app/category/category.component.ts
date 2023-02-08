@@ -35,7 +35,7 @@ export class CategoryComponent {
               url + 'page=2'
             ).pipe(
               map((data2) => {
-                return data.results.concat(data2.results);
+                return data.results.concat(data2.results).slice(0, 5);
               })
             );
         })

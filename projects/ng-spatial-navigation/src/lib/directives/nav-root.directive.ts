@@ -70,6 +70,7 @@ export class NavRootDirective extends NavLayerDirective {
       return;
     }
     this.keyboardService.setRoot(this.el.nativeElement, !this.noGlobal);
+    this.detectDomChangesService.startObserver(this.el.nativeElement);
     NavRootDirective.roots.push(this);
   }
 
@@ -90,6 +91,7 @@ export class NavRootDirective extends NavLayerDirective {
     // Если мы не настоящий корневой элемент, то ничего не делаем
     if (!this.imFakeRoot) {
       this.keyboardService.deleteRoot(this.el.nativeElement, !this.noGlobal);
+      this.detectDomChangesService.stopObserver(this.el.nativeElement);
       NavRootDirective.roots = NavRootDirective.roots.filter((root) => root !== this);
     }
   }
@@ -100,3 +102,14 @@ export class NavRootDirective extends NavLayerDirective {
 // window['showAllNavNodes'] = () => NavRootDirective.roots.forEach((root) => {
 //   root.logTree()
 // });
+
+
+
+
+
+
+// @ts-ignore
+window['showAllNavNodes'] = () => NavRootDirective.roots.forEach((root) => {
+  // @ts-ignore
+  prettyPrint(root, 0);
+});

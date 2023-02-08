@@ -23,8 +23,9 @@ import { KeyboardService } from '../keyboard.service';
 import { isMyChild } from '../utils/is-my-child';
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
-import { CoerceBoolean } from "../decorators/coerce-boolean.decorator";
-import { debugLog } from "../utils/debug";
+import { CoerceBoolean } from '../decorators/coerce-boolean.decorator';
+import { debugLog } from '../utils/debug';
+import { DetectDomChangesService } from '../detect-dom-changes.service';
 
 @Directive()
 /**
@@ -125,7 +126,8 @@ export abstract class NavItemBaseDirective
     @Optional()
     @SkipSelf()
     @Inject(NAV_LAYER_TOKEN)
-    public parentLayer: LayerNavItem
+    public parentLayer: LayerNavItem,
+    protected detectDomChangesService: DetectDomChangesService
   ) {
   }
 
@@ -151,20 +153,26 @@ export abstract class NavItemBaseDirective
     this.memory = child;
     if (this.hasFocus) {
       // мы уже имеем фокус - ничего не делаем
-      return
+      return;
     }
     this.setHasFocus();
   }
 
-  childFocusLost(child: NavItem, nextFocus: FocusableNavItem | undefined): void {
+  childFocusLost(
+    child: NavItem,
+    nextFocus: FocusableNavItem | undefined
+  ): void {
     if (!this.hasFocus) {
-      console.error(this.navId, 'мы не имеем фокуса, но потомок потерял фокус - это баг')
-      return
+      console.error(
+        this.navId,
+        'мы не имеем фокуса, но потомок потерял фокус - это баг'
+      );
+      return;
     }
     if (nextFocus && isMyChild(this, nextFocus as any, 'parent')) {
       // мой один из детей потерял фокус, а другой получил фокус
       // - ничего не делаем, так как у родителя он остается все равно
-      return
+      return;
     }
     this.unsetHasFocus(nextFocus);
   }
@@ -175,7 +183,8 @@ export abstract class NavItemBaseDirective
       (a, b) =>
         // смотрим сначала кто выше, потом кто левее (если они на одном уровне)
         // расчет происходит только один раз при регистрации потомка
-        a.el.nativeElement.offsetTop - b.el.nativeElement.offsetTop || a.el.nativeElement.offsetLeft - b.el.nativeElement.offsetLeft
+        a.el.nativeElement.offsetTop - b.el.nativeElement.offsetTop ||
+        a.el.nativeElement.offsetLeft - b.el.nativeElement.offsetLeft
     );
     this.initDirections(navItem);
   }
@@ -197,19 +206,15 @@ export abstract class NavItemBaseDirective
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['id']) {
-      if (changes['id'].firstChange) {
-        this.navigationItemsStoreService.addNavItem(this);
-      } else {
-        this.navigationItemsStoreService.changedNavItemId(this);
-      }
-    }
   }
 
   ngOnInit(): void {
     if (!this.navId) {
-      this.navId = this.el.nativeElement.id || (this.parent && this.parent.generateId(this))
+      this.navId =
+        this.el.nativeElement.id ||
+        (this.parent && this.parent.generateId(this));
     }
+    this.navigationItemsStoreService.addNavItem(this);
   }
 
   ngAfterContentInit(): void {
@@ -218,7 +223,6 @@ export abstract class NavItemBaseDirective
     }
     this.navigationService.afterContentInitNavItem(this);
   }
-
 
   findBackward(child?: NavItem): NavItem | undefined {
     // Если мы принимаем бек, то возвращаем себя

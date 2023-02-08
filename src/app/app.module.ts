@@ -11,6 +11,8 @@ import { MainComponent } from './main/main.component';
 import { CategoryComponent } from './category/category.component';
 import { ProfileComponent } from './profile/profile.component';
 import { MovieCardComponent } from './movie-card/movie-card.component';
+import { ApelsinTVCustomRouteReuseStrategy } from './reuse.strategy';
+import { RouteReuseStrategy } from "@angular/router";
 
 @NgModule({
   declarations: [
@@ -27,7 +29,9 @@ import { MovieCardComponent } from './movie-card/movie-card.component';
     HttpClientModule,
     NgSpatialNavigationModule,
   ],
-  providers: [],
+  // providers: [
+  //   { provide: RouteReuseStrategy, useClass: ApelsinTVCustomRouteReuseStrategy },
+  // ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
