@@ -12,6 +12,8 @@ export class AppComponent {
     private ngSpatialNavigationService: NgSpatialNavigationService,
     private location: Location
   ) {
+    // Заметка: Элементы на которых есть свойство "back" берут на себя фокус при нажатии кнопки "назад"
+    // А если таких элементов нет, то вызывается этот колбек
     ngSpatialNavigationService.setBackUnhandledCallback(() => {
       location.back();
     });

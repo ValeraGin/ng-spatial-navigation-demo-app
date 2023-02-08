@@ -2,6 +2,7 @@ import { Inject, Injectable, NgZone } from '@angular/core';
 import { NavigationService } from './navigation.service';
 import { DOCUMENT } from '@angular/common';
 import { KeyboardKeysEnum } from './enums/keyboard-keys.enum';
+import { debugWarn } from "./utils/debug";
 
 /**
  * Минимальный (экстремальный) интервал между повторными нажатиями клавиш при удержании
@@ -99,6 +100,7 @@ export class KeyboardService {
           nativeElement.click();
           return true;
         } else {
+          debugWarn('Не найден элемент для клика');
           return false;
         }
         case KeyboardKeysEnum.BACKSPACE:
@@ -126,25 +128,18 @@ export class KeyboardService {
       return;
     }
     if (!nativeRepeatMode) {
+      if (this.pressedKeys[event.code]) {
+        clearInterval(this.pressedKeys[event.code]);
+        this.pressedKeys[event.code] = undefined;
+      }
       if (isDown) {
-        if (this.pressedKeys[event.code]) {
-          clearInterval(this.pressedKeys[event.code]);
-          this.pressedKeys[event.code] = undefined;
-        }
         /**
-         * TODO: Первое повторение происходит с задержкой + интервал, а потом только интервал
-         *       DOWN.......REPEAT...REPEAT...REPEAT.UP
-         *       так построен оригинальный REPEAT
+         * TODO: Первое повторение должно быть через 500мс, а далее через 100мс
          */
         this.pressedKeys[event.code] = setInterval(
           () => this.keyRepeat(event),
           this.repeatInterval
         );
-      } else {
-        if (this.pressedKeys[event.code]) {
-          clearInterval(this.pressedKeys[event.code]);
-          this.pressedKeys[event.code] = undefined;
-        }
       }
     }
     if (!isDown) {

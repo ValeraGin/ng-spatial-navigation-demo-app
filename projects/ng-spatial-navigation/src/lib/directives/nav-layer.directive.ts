@@ -5,6 +5,7 @@ import { NavListDirective } from './nav-list.directive';
 
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
 import { BlockNavigation } from "../types/directions.type";
+import { DIRECTIONS } from "../types/direction.type";
 
 const layerBlockNavigationToken: BlockNavigation = {
   type: 'block',
@@ -28,17 +29,15 @@ export class NavLayerDirective extends NavListDirective {
 
   override type = 'layer';
 
-  override up = layerBlockNavigationToken;
-
-  override right = layerBlockNavigationToken;
-
-  override down = layerBlockNavigationToken;
-
-  override left = layerBlockNavigationToken;
-
   prevMemory?: NavItem;
 
   subLayers: NavLayerDirective[] = [];
+
+  override initNavItem() {
+    for (const direction of DIRECTIONS) {
+      this[direction] = layerBlockNavigationToken;
+    }
+  }
 
   override findReplace(deletedItem: NavItem): NavItem | undefined {
     const findReplace = super.findReplace(deletedItem);

@@ -3,4 +3,13 @@
  *
  * вверх, вправо, вниз, влево, вперед, назад
  */
-export type Direction = 'up' | 'right' | 'down' | 'left' | 'tab' | 'tabshift';
+export const DIRECTIONS = [
+  'up',
+  'down',
+  'left',
+  'right',
+  'tab',
+  'tabshift',
+] as const;
+
+export type Direction = (typeof DIRECTIONS)[number];

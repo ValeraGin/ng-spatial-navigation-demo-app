@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { NavigationItemsStoreService } from './navigation-items-store.service';
-import { debugError } from "./utils/debug";
 
 /**
  * Сервис, который будет следить за дом и знать как DOM удаляется или добавляется
@@ -41,7 +40,6 @@ export class DetectDomChangesService {
   }
 
   private onAddedNode(node: Node) {
-    // console.log('onAddedNode', node);
     const navItems =
       this.navigationItemsStore.getNavItemByNodeRecursive(node);
     navItems.forEach((navItem) => {
@@ -50,8 +48,6 @@ export class DetectDomChangesService {
   }
 
   private onRemovedNode(node: Node) {
-    // console.log('onRemovedNode', node);
-   // debugger;
     const navItems =
       this.navigationItemsStore.getNavItemByNodeRecursive(node);
     navItems.forEach((navItem) => {

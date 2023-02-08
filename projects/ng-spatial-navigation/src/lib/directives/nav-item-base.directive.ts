@@ -113,6 +113,8 @@ export abstract class NavItemBaseDirective
    */
   abstract removeDirections(navItem: NavItem): void;
 
+  abstract initNavItem(): void;
+
   constructor(
     protected navigationService: NavigationService,
     protected navigationItemsStoreService: NavigationItemsStoreService,
@@ -129,6 +131,7 @@ export abstract class NavItemBaseDirective
     public parentLayer: LayerNavItem,
     protected detectDomChangesService: DetectDomChangesService
   ) {
+    this.initNavItem()
   }
 
   setHasFocus(): void {

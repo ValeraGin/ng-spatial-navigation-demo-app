@@ -3,7 +3,7 @@ import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { NavItemBaseDirective } from './nav-item-base.directive';
 import { NavItem } from '../types/nav-item.type';
 import { CoerceBoolean } from '../decorators/coerce-boolean.decorator';
-import { Direction } from '../types/direction.type';
+import { Direction, DIRECTIONS } from '../types/direction.type';
 
 /**
  * Получает элемент по направлению в листе
@@ -13,7 +13,7 @@ import { Direction } from '../types/direction.type';
  * @param children - список элементов
  * @param horizontal - признак горизонтального листа
  */
-function getItemFromDirection(direction: Direction, index: number, children: NavItem[], horizontal: boolean): NavItem | undefined {
+function listDirectionFn(direction: Direction, index: number, children: NavItem[], horizontal: boolean): NavItem | undefined {
   switch (direction) {
     case 'up':
       return horizontal ? undefined : index - 1 >= 0 ? children[index - 1] : undefined;
@@ -59,39 +59,16 @@ function initDirectionsList(
   children: NavItem[],
   navItem: NavItem
   , horizontal: boolean): void {
-  const getFromDirectionHelper = (direction: Direction): NavItem | undefined => {
+  const listDirectionFnHelper = (direction: Direction): NavItem | undefined => {
     const index = children.indexOf(navItem);
-    const ret = getItemFromDirection(direction, index, children, horizontal);
+    const ret = listDirectionFn(direction, index, children, horizontal);
     showListInConsole(navItem, ret, children);
     return ret
   };
-
-  navItem.up = getFromDirectionHelper.bind(null, 'up');
-  navItem.down = getFromDirectionHelper.bind(null, 'down');
-  navItem.right = getFromDirectionHelper.bind(null, 'right');
-  navItem.left = getFromDirectionHelper.bind(null, 'left');
-  navItem.tab = getFromDirectionHelper.bind(null, 'tab');
-  navItem.tabshift = getFromDirectionHelper.bind(null, 'tabshift');
+  for (const direction of DIRECTIONS) {
+    navItem[direction] = listDirectionFnHelper.bind(undefined, direction);
+  }
 }
-
-/**
- * Удаление направлений для
- *
- * @param children - все элементы
- * @param navItem - текущий элемент
- * @param horizontal - признак горизонтального листа
- */
-function removeDirectionsList(
-  children: NavItem[],
-  navItem: NavItem,
-  horizontal: boolean
-): void {
-  navItem.up = undefined;
-  navItem.down = undefined;
-  navItem.right = undefined;
-  navItem.left = undefined;
-}
-
 
 @Directive({
   selector: '[navList]',
@@ -126,11 +103,15 @@ export class NavListDirective extends NavItemBaseDirective {
    */
   @CoerceBoolean() @Input() horizontal: boolean | string | undefined;
 
+  override initNavItem() {}
+
   initDirections(navItem: NavItem): void {
     return initDirectionsList(this.children, navItem, !!this.horizontal);
   }
 
   removeDirections(navItem: NavItem): void {
-    return removeDirectionsList(this.children, navItem, !!this.horizontal);
+    for (const direction of DIRECTIONS) {
+      navItem[direction] = undefined
+    }
   }
 }

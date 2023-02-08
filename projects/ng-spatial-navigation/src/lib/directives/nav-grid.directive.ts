@@ -2,7 +2,7 @@ import { Directive, forwardRef, Input } from '@angular/core';
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { NavItemBaseDirective } from './nav-item-base.directive';
 import { NavItem } from '../types/nav-item.type';
-import { Direction } from '../types/direction.type';
+import { Direction, DIRECTIONS } from '../types/direction.type';
 
 /**
  * Получает элемент по направлению в гриде
@@ -12,7 +12,7 @@ import { Direction } from '../types/direction.type';
  * @param children - список элементов
  * @param gridRowSize - размер грида по горизонтали
  */
-function getItemFromDirection(direction: Direction, index: number, children: NavItem[], gridRowSize: number): NavItem | undefined {
+function gridDirectionFn(direction: Direction, index: number, children: NavItem[], gridRowSize: number): NavItem | undefined {
   switch (direction) {
     case 'up':
       return index - gridRowSize >= 0 ? children[index - gridRowSize] : undefined;
@@ -68,40 +68,16 @@ function initDirectionsGrid(
   navItem: NavItem,
   gridSize: number
 ): void {
-  const getFromDirectionHelper = (direction: Direction): NavItem | undefined => {
+  const gridDirectionFnHelper = (direction: Direction): NavItem | undefined => {
     const index = children.indexOf(navItem);
-    const ret = getItemFromDirection(direction, index, children, gridSize);
+    const ret = gridDirectionFn(direction, index, children, gridSize);
     showGridInConsole(navItem, ret, children, gridSize);
     return ret
   };
-
-  navItem.up = getFromDirectionHelper.bind(null, 'up');
-  navItem.down = getFromDirectionHelper.bind(null, 'down');
-  navItem.right = getFromDirectionHelper.bind(null, 'right');
-  navItem.left = getFromDirectionHelper.bind(null, 'left');
-  navItem.tab = getFromDirectionHelper.bind(null, 'tab');
-  navItem.tabshift = getFromDirectionHelper.bind(null, 'tabshift');
+  for (const direction of DIRECTIONS) {
+    navItem[direction] = gridDirectionFnHelper.bind(undefined, direction);
+  }
 }
-
-/**
- * Удаление направлений для грида
- *
- * @param children - все элементы
- * @param navItem - текущий элемент
- * @param gridSize - размер грида по горизонтали
- */
-function removeDirectionsGrid(
-  children: NavItem[],
-  navItem: NavItem,
-  gridSize: number
-): void {
-  navItem.up = undefined;
-  navItem.down = undefined;
-  navItem.right = undefined;
-  navItem.left = undefined;
-}
-
-
 
 @Directive({
   selector: '[navGrid]',
@@ -135,11 +111,15 @@ export class NavGridDirective extends NavItemBaseDirective {
    */
   @Input() gridRowSize?: number;
 
+  override initNavItem() {}
+
   initDirections(navItem: NavItem): void {
     return initDirectionsGrid(this.children, navItem, this.gridRowSize ?? 0);
   }
 
   removeDirections(navItem: NavItem): void {
-    return removeDirectionsGrid(this.children, navItem, this.gridRowSize ?? 0);
+    for (const direction of DIRECTIONS) {
+      navItem[direction] = undefined
+    }
   }
 }
