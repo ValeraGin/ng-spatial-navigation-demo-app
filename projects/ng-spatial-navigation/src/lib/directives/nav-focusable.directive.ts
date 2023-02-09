@@ -41,13 +41,6 @@ export class NavFocusableDirective extends NavListDirective {
    */
   @CoerceBoolean() @Input() noNeedScroll: boolean | string | undefined;
 
-  /**
-   * Функция, которая вызывается перед уничтожением элемента когда он находится в фокусе
-   *
-   * Нужно чтобы не потерять фокус при уничтожении элемента в фокусе
-   */
-  private beforeDestroy: (() => void) | undefined;
-
   @HostListener('mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
     if (event.target === this.el.nativeElement) {
@@ -62,24 +55,16 @@ export class NavFocusableDirective extends NavListDirective {
     return this;
   }
 
-  setFocus(beforeDestroy: FocusableNavItem['beforeDestroy']): void {
-    this.beforeDestroy = beforeDestroy;
+  setFocus(): void {
     this.focused = true;
     this.renderer.addClass(this.el.nativeElement, 'focused');
     super.setHasFocus();
   }
 
   unsetFocus(nextFocus?: FocusableNavItem): void {
-    this.beforeDestroy = undefined;
     this.focused = false;
     this.renderer.removeClass(this.el.nativeElement, 'focused');
     super.unsetHasFocus(nextFocus);
   }
 
-  override ngOnDestroy(): void {
-    if (this.beforeDestroy) {
-      this.beforeDestroy();
-    }
-    super.ngOnDestroy();
-  }
 }
