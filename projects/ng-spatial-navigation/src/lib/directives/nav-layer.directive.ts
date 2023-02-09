@@ -38,7 +38,7 @@ export class NavLayerDirective extends NavListDirective {
 
   unregisterLayer(layer: NavLayerDirective): void {
     if (this.memory === layer) {
-      this.memory = this.findReplaceForChild(layer);
+     // this.memory = this.findReplaceForChild(layer);
     }
     this.subLayers = this.subLayers.filter((l) => l !== layer);
   }

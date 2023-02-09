@@ -22,13 +22,11 @@ import {
   NavItem,
 } from '../types/nav-item.type';
 import { Directions, DirectionType } from '../types/directions.type';
-import { KeyboardService } from '../keyboard.service';
 import { isMyChild } from '../utils/is-my-child';
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
 import { CoerceBoolean } from '../decorators/coerce-boolean.decorator';
 import { debugLog } from '../utils/debug';
-import { DetectDomChangesService } from '../detect-dom-changes.service';
 import { Direction } from '../types/direction.type';
 
 @Directive()
@@ -105,22 +103,33 @@ export abstract class NavItemBaseDirective
    */
   protected children: NavItem[] = [];
 
+  /**
+   * флаг, что элемент был удален из DOM, но компонент жив (это происходит при использовании ReuseStrategy)
+   */
+  detachedFromDom = false;
+
+  parent: NavItem;
+
+  parentLayer: LayerNavItem;
+
+  idIncrement: number = 0;
+
   constructor(
     protected navigationService: NavigationService,
     protected navigationItemsStoreService: NavigationItemsStoreService,
-    protected keyboardService: KeyboardService,
     protected renderer: Renderer2,
     public el: ElementRef<HTMLElement>,
     @Optional()
     @SkipSelf()
     @Inject(NAV_ITEM_TOKEN)
-    public parent: NavItem,
+    public parentToken: NavItem,
     @Optional()
     @SkipSelf()
     @Inject(NAV_LAYER_TOKEN)
-    public parentLayer: LayerNavItem,
-    protected detectDomChangesService: DetectDomChangesService
+    public parentLayerToken: LayerNavItem
   ) {
+    this.parent = parentToken;
+    this.parentLayer = parentLayerToken;
     this.initNavItem();
   }
 
@@ -218,10 +227,8 @@ export abstract class NavItemBaseDirective
   }
 
   ngOnDestroy(): void {
+    this.disappearance();
     this.navigationItemsStoreService.removeNavItem(this);
-    if (this.parent) {
-      this.parent.unRegisterChild(this);
-    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {}
@@ -236,10 +243,7 @@ export abstract class NavItemBaseDirective
   }
 
   ngAfterContentInit(): void {
-    if (this.parent) {
-      this.parent.registerChild(this);
-    }
-    this.navigationService.afterContentInitNavItem(this);
+    this.appearance();
   }
 
   findBackward(child?: NavItem): NavItem | undefined {
@@ -298,6 +302,38 @@ export abstract class NavItemBaseDirective
   }
 
   generateIdForChild(child: NavItem): string {
-    return `${this.navId}-${this.children.length}`;
+    return `${this.navId}-${this.idIncrement++}`;
+  }
+
+  attachToDom(): void {
+    if (!this.detachedFromDom) {
+      return;
+    }
+    this.detachedFromDom = false;
+    console.log('attachToDom', this.navId);
+    this.appearance();
+  }
+
+  detachFromDom(): void {
+    if (this.detachedFromDom) {
+      return;
+    }
+    this.detachedFromDom = true;
+    console.log('detachFromDom', this.navId);
+    this.disappearance();
+  }
+
+  appearance(): void {
+    if (this.parent) {
+      this.parent.registerChild(this);
+    }
+    this.navigationService.navItemAppeared(this);
+  }
+
+  disappearance(): void {
+    if (this.parent) {
+      this.parent.unRegisterChild(this);
+    }
+    this.navigationService.navItemDisappeared(this);
   }
 }

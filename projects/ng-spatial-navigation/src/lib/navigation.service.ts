@@ -1,21 +1,18 @@
 import { Injectable } from '@angular/core';
 import { Debounce } from './decorators/debounce.decorator';
 import { findCommonParent } from './utils/find-common-parent';
-import { FocusableNavItem, LayerNavItem, NavItem } from './types/nav-item.type';
+import { FocusableNavItem, LayerNavItem, NavItem, RootNavItem } from './types/nav-item.type';
 import { Direction } from './types/direction.type';
 import { NavigationItemsStoreService } from './navigation-items-store.service';
 import { FocusStatus } from './types/focus-status.type';
 import { isBlockNavigation } from './type-guards/is-block-navigation';
-import {
-  debugError,
-  debugGroupCollapsed,
-  debugGroupEnd,
-  debugLog,
-} from './utils/debug';
+import { debugError, debugGroupCollapsed, debugGroupEnd, debugLog, debugWarn } from './utils/debug';
 
 import scrollIntoView, { Options } from 'scroll-into-view-if-needed';
 import { BlockNavigation, DirectionType } from './types/directions.type';
 import { isMyChild } from './utils/is-my-child';
+import { DetectDomChangesService } from './detect-dom-changes.service';
+import { KeyboardService } from './keyboard.service';
 
 /**
  * Время, которое дается элементам на отрисовку до передачи им фокуса (в миллисекундах)
@@ -38,6 +35,8 @@ export class NavigationService {
     useNativeScroll: false,
     useRealFocus: false,
   };
+
+  root: RootNavItem | undefined;
 
   activeLayer: LayerNavItem | undefined;
 
@@ -68,9 +67,22 @@ export class NavigationService {
   private navItemsForCheckFocus: NavItem[] = [];
 
   constructor(
-    private navigationItemsStoreService: NavigationItemsStoreService
+    private navigationItemsStoreService: NavigationItemsStoreService,
+    private keyboardService: KeyboardService,
+    private detectDomChangesService: DetectDomChangesService
   ) {
-    debugLog('create NavigationService');
+    this.keyboardService.navigateCallback = (direction) => this.navigate(direction);
+    this.keyboardService.backCallback = async () => this.back();
+    this.keyboardService.enterCallback = async () => {
+      const nativeElement = this.focusedNavItem?.el?.nativeElement;
+      if (nativeElement) {
+        nativeElement.click();
+        return true;
+      } else {
+        debugWarn('Не найден элемент для клика');
+        return false;
+      }
+    };
   }
 
   @Debounce(TIME_DEBOUNCE_FOCUS_IN_MS)
@@ -79,9 +91,7 @@ export class NavigationService {
       this.navItemsForCheckFocus = [];
       return;
     }
-    debugGroupCollapsed(
-      'Пытаемся вернуть фокус, так как появились элементы для проверки'
-    );
+    debugGroupCollapsed('Пытаемся вернуть фокус, так как появились элементы для проверки');
     const commonParent = findCommonParent(...this.navItemsForCheckFocus);
     this.navItemsForCheckFocus = [];
     if (commonParent) {
@@ -100,7 +110,8 @@ export class NavigationService {
     debugGroupEnd();
   }
 
-  layerAppear(layer: LayerNavItem) {
+  registerLayer(layer: LayerNavItem) {
+    this.activeLayer = layer;
     const findFocus = layer.findFocus();
     if (findFocus) {
       this.focus(findFocus);
@@ -114,6 +125,24 @@ export class NavigationService {
     }
   }
 
+  unregisterLayer(layer: LayerNavItem) {
+    if (this.activeLayer === layer) {
+      this.activeLayer = undefined;
+    }
+  }
+
+  registerRoot(root: RootNavItem) {
+    this.root = root;
+    this.keyboardService.setRoot(root.el.nativeElement, true);
+    this.detectDomChangesService.startObserver(root.el.nativeElement);
+  }
+
+  unregisterRoot(root: RootNavItem) {
+    this.keyboardService.deleteRoot(root.el.nativeElement, true);
+    this.detectDomChangesService.stopObserver(root.el.nativeElement);
+    this.root = undefined;
+  }
+
   focusWithFind(navItem: NavItem): boolean {
     const findFocus = navItem.findFocus();
     if (findFocus) {
@@ -125,25 +154,20 @@ export class NavigationService {
   }
 
   focus(navItem: FocusableNavItem): boolean {
-    if (navItem === this.focusedNavItem) {
-      return true;
-    }
     debugGroupCollapsed('Смена фокуса');
     if (this.focusedNavItem) {
+      if (navItem === this.focusedNavItem) {
+        console.log('Фокус уже установлен на этом элементе');
+        return true;
+      }
       this.focusedNavItem.unsetFocus(navItem);
     }
     this.focusedNavItem = navItem;
-    if (
-      !this.settings.disableScrollGlobally &&
-      !this.focusedNavItem.noNeedScroll
-    ) {
+    if (!this.settings.disableScrollGlobally && !this.focusedNavItem.noNeedScroll) {
       if (this.settings.useNativeScroll) {
         this.focusedNavItem.el.nativeElement.scrollIntoView();
       } else {
-        scrollIntoView(
-          this.focusedNavItem.el.nativeElement,
-          this.settings.scrollIntoViewOptions
-        );
+        scrollIntoView(this.focusedNavItem.el.nativeElement, this.settings.scrollIntoViewOptions);
       }
     }
     if (this.settings.useRealFocus) {
@@ -154,9 +178,7 @@ export class NavigationService {
             'Не удалось установить нативный фокус на элементе',
             this.focusedNavItem?.el.nativeElement
           );
-          debugLog(
-            'Для установки нативного фокуса - он должен быть фокусабельным'
-          );
+          debugLog('Для установки нативного фокуса - он должен быть фокусабельным');
           /**
            * focusable elements are:
            *
@@ -169,7 +191,7 @@ export class NavigationService {
         }
       });
     }
-    this.focusedNavItem.setFocus(() => this.focusedElementDestroyed());
+    this.focusedNavItem.setFocus();
     this.status = 'default';
     debugGroupEnd();
     return true;
@@ -249,9 +271,7 @@ export class NavigationService {
         : directionDataWithElementOrPromise;
     const directionData =
       directionDataWithElement instanceof HTMLElement
-        ? this.navigationItemsStoreService.getNavItemByElement(
-            directionDataWithElement
-          )
+        ? this.navigationItemsStoreService.getNavItemByElement(directionDataWithElement)
         : directionDataWithElement;
     return typeof directionData === 'string'
       ? this.navigationItemsStoreService.getNavItemById(directionData)
@@ -262,10 +282,7 @@ export class NavigationService {
     const getFromDirectionRecursive = async (
       currentItem: NavItem
     ): Promise<NavItem | BlockNavigation | undefined> => {
-      const navItem = await this.execDirection(
-        currentItem.getDirection(direction),
-        currentItem
-      );
+      const navItem = await this.execDirection(currentItem.getDirection(direction), currentItem);
       if (navItem) {
         return navItem;
       }
@@ -284,9 +301,7 @@ export class NavigationService {
       }
       const fromDirection = await getFromDirectionRecursive(currentNavItem);
       if (isBlockNavigation(fromDirection)) {
-        debugLog(
-          `Навигация в ${direction} направление заблокирована ${fromDirection.reason}`
-        );
+        debugLog(`Навигация в ${direction} направление заблокирована ${fromDirection.reason}`);
         return;
       }
       if (fromDirection) {
@@ -301,9 +316,7 @@ export class NavigationService {
     };
 
     if (this.focusedNavItem) {
-      const elementToFocus = await getNavItemInDirectionRecursive(
-        this.focusedNavItem
-      );
+      const elementToFocus = await getNavItemInDirectionRecursive(this.focusedNavItem);
       if (elementToFocus && this.focus(elementToFocus)) {
         debugLog(`Успешно перешли в ${direction} направление`);
         return true;
@@ -342,7 +355,7 @@ export class NavigationService {
     console.log('Ожидаем элемент с идентификатором', id);
   }
 
-  afterContentInitNavItem(navItem: NavItem): void {
+  navItemAppeared(navItem: NavItem): void {
     switch (this.status) {
       case 'waiting':
         if (
@@ -363,23 +376,25 @@ export class NavigationService {
         if (this.waitingId) {
           if (navItem.navId === this.waitingId) {
             if (!this.focusWithFind(navItem)) {
-              debugError(
-                'Элемент найден, но не может принять фокус - переходим в waiting'
-              );
+              debugError('Элемент найден, но не может принять фокус - переходим в waiting');
               this.status = 'waiting';
               this.markFocusForCheck();
             }
             return;
           }
         } else {
-          console.error(
-            'Статус ожидания элемента, но нет идентификатора элемента - баг'
-          );
+          console.error('Статус ожидания элемента, но нет идентификатора элемента - баг');
         }
         break;
       case 'default':
         // Ничего не делаем, так как фокус уже есть
         break;
+    }
+  }
+
+  navItemDisappeared(navItem: NavItem) {
+    if (navItem.hasFocus) {
+      //this.needReplaceFocus(navItem);
     }
   }
 
