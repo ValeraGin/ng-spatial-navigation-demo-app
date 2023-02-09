@@ -1,6 +1,5 @@
 import { Directive, forwardRef } from '@angular/core';
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
-import { NavItem } from '../types/nav-item.type';
 import { NavListDirective } from './nav-list.directive';
 
 import { NAV_LAYER_TOKEN } from '../token/nav-layer.token';
@@ -22,8 +21,6 @@ import { DIRECTIONS } from '../types/direction.type';
 export class NavLayerDirective extends NavListDirective {
   override type = 'layer';
 
-  prevMemory?: NavItem;
-
   subLayers: NavLayerDirective[] = [];
 
   override initNavItem() {
@@ -35,33 +32,30 @@ export class NavLayerDirective extends NavListDirective {
     }
   }
 
-  override findReplace(deletedItem: NavItem): NavItem | undefined {
-    const findReplace = super.findReplace(deletedItem);
-    return findReplace || this.prevMemory;
-  }
-
   registerLayer(layer: NavLayerDirective): void {
     this.subLayers.push(layer);
   }
 
   unregisterLayer(layer: NavLayerDirective): void {
-    const index = this.subLayers.indexOf(layer);
-    this.subLayers.splice(index, 1);
+    if (this.memory === layer) {
+      this.memory = this.findReplaceForChild(layer);
+    }
+    this.subLayers = this.subLayers.filter((l) => l !== layer);
   }
 
-  override ngAfterContentInit(): void {
-    super.ngAfterContentInit();
+  override appearance() {
     if (this.parentLayer) {
       this.parentLayer.registerLayer(this);
     }
-    this.prevMemory = this.parent?.memory;
-    this.navigationService.layerAppear(this);
+    this.navigationService.registerLayer(this);
+    this.navigationService.navItemAppeared(this);
   }
 
-  override ngOnDestroy(): void {
+  override disappearance() {
     if (this.parentLayer) {
       this.parentLayer.unregisterLayer(this);
     }
-    super.ngOnDestroy();
+    this.navigationService.unregisterLayer(this);
+    this.navigationService.navItemDisappeared(this);
   }
 }
