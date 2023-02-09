@@ -9,6 +9,7 @@ import { NavigationService } from './navigation.service';
 import { KeyboardService } from './keyboard.service';
 import { NgSpatialNavigationService } from './ng-spatial-navigation.service';
 import { DetectDomChangesService } from './detect-dom-changes.service';
+import { NavigationDebuggerService } from "./navigation-debugger.service";
 
 /**
  * Модуль для работы с навигацией по элементам
@@ -89,17 +90,20 @@ import { DetectDomChangesService } from './detect-dom-changes.service';
     NavigationItemsStoreService,
     DetectDomChangesService,
     NgSpatialNavigationService,
+    NavigationDebuggerService,
   ],
 })
 export class NgSpatialNavigationModule {
   private static instance: any;
 
-  constructor() {
+  constructor(private navigationDebuggerService: NavigationDebuggerService) {
     if (NgSpatialNavigationModule.instance) {
       throw new Error(
         'NgSpatialNavigationModule is already loaded. Import it in the AppModule only'
       );
     }
     NgSpatialNavigationModule.instance = this;
+
+    navigationDebuggerService.attachToWindow();
   }
 }

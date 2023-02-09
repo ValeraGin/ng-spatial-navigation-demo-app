@@ -32,4 +32,12 @@ export class CategoryComponent {
       mergeMap((urlPart) => this.tmdbService.getCategoryMovies$(urlPart))
     );
   }
+
+  ngOnInit(): void {
+    console.log('CategoryComponent.ngOnInit()');
+  }
+
+  ngOnDestroy(): void {
+    console.log('CategoryComponent.ngOnDestroy()');
+  }
 }

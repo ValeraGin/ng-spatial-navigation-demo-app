@@ -6,7 +6,6 @@
     navList
   >
     <h1 class="font-bold text-2xl ml-24 mb-5 text-white">{{ line.title }}</h1>
-    <div class="overflow-hidden">
       <div [id]="'movies-row_' + lineIndex" class="flex ml-20" horizontal navList>
         <div
           *ngFor="let movie of line.data; let movieIndex = index"
@@ -16,8 +15,9 @@
           navFocusable
           routerLink="/movie/{{ movie.id }}"
         >
-          <div class="rounded overflow-hidden shadow-lg w-full">
+          <div class="rounded shadow-lg w-full">
             <img
+              class="rounded"
               [src]="tmdbService.getPosterUrl(movie.poster_path)"
               alt="{{ movie.title }}"
             />
@@ -36,7 +36,7 @@
           navFocusable
           routerLink="/category"
         >
-          <div class="rounded overflow-hidden shadow-lg w-full">
+          <div class="shadow-lg w-full">
             <div
               class="aspect-[2/3] bg-gradient-to-r from-violet-500 to-fuchsia-500 flex justify-center items-center"
             >
@@ -64,5 +64,4 @@
         </div>
       </div>
     </div>
-  </div>
 </ng-container>

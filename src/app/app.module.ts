@@ -5,12 +5,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgSpatialNavigationModule } from 'ng-spatial-navigation';
 import { HttpClientModule } from '@angular/common/http';
-import { CategoryComponent } from "./pages/category/category.component";
-import { MainComponent } from "./pages/main/main.component";
-import { ProfileComponent } from "./pages/profile/profile.component";
-import { MovieCardComponent } from "./pages/movie-card/movie-card.component";
-import { MainLayoutComponent } from "./layouts/main-layout/main-layout.component";
-import { SideMenuComponent } from "./layouts/main-layout/side-menu/side-menu.component";
+import { CategoryComponent } from './pages/category/category.component';
+import { MainComponent } from './pages/main/main.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { MovieCardComponent } from './pages/movie-card/movie-card.component';
+import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
+import { SideMenuComponent } from './layouts/main-layout/side-menu/side-menu.component';
+import { RouteReuseStrategy } from '@angular/router';
+import { CustomRouteReuseStrategy } from './core/custom-route-reuse.strategy';
 
 @NgModule({
   declarations: [
@@ -26,12 +28,11 @@ import { SideMenuComponent } from "./layouts/main-layout/side-menu/side-menu.com
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    NgSpatialNavigationModule
+    NgSpatialNavigationModule,
   ],
-  // providers: [
-  //   { provide: RouteReuseStrategy, useClass: ApelsinTVCustomRouteReuseStrategy },
-  // ],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy },
+  ],
   bootstrap: [AppComponent],
 })
-export class AppModule {
-}
+export class AppModule {}

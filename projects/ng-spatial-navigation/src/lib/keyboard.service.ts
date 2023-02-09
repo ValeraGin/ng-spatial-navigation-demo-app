@@ -1,8 +1,7 @@
 import { Inject, Injectable, NgZone } from '@angular/core';
-import { NavigationService } from './navigation.service';
 import { DOCUMENT } from '@angular/common';
 import { KeyboardKeysEnum } from './enums/keyboard-keys.enum';
-import { debugWarn } from './utils/debug';
+import { Direction } from "./types/direction.type";
 
 /**
  * Минимальный (экстремальный) интервал между повторными нажатиями клавиш при удержании
@@ -14,6 +13,13 @@ const EXTREME_INTERVAL_REPEAT = 200;
 /** @dynamic */
 @Injectable()
 export class KeyboardService {
+
+  public navigateCallback!: (direction: Direction) => Promise<boolean>;
+
+  public backCallback!: () => Promise<boolean>;
+
+  public enterCallback!: () => Promise<boolean>;
+
   /**
    * Интервал между повторными нажатиями клавиш при удержании
    *
@@ -46,7 +52,6 @@ export class KeyboardService {
 
   constructor(
     private zone: NgZone,
-    private navigationService: NavigationService,
     @Inject(DOCUMENT) private document: Document
   ) {
     this.keyDownListener = this.keyListener.bind(this, true);
@@ -83,27 +88,19 @@ export class KeyboardService {
   private async doAction(keyCode: number, isShift: boolean): Promise<boolean> {
     switch (keyCode) {
       case KeyboardKeysEnum.UP:
-        return this.navigationService.navigate('up');
+        return this.navigateCallback('up')
       case KeyboardKeysEnum.RIGHT:
-        return this.navigationService.navigate('right');
+        return this.navigateCallback('right')
       case KeyboardKeysEnum.DOWN:
-        return this.navigationService.navigate('down');
+        return this.navigateCallback('down')
       case KeyboardKeysEnum.LEFT:
-        return this.navigationService.navigate('left');
+        return this.navigateCallback('left')
       case KeyboardKeysEnum.TAB:
-        return this.navigationService.navigate(isShift ? 'tabshift' : 'tab');
+        return this.navigateCallback(isShift ? 'tabshift' : 'tab');
       case KeyboardKeysEnum.ENTER:
-        const nativeElement =
-          this.navigationService.focusedNavItem?.el?.nativeElement;
-        if (nativeElement) {
-          nativeElement.click();
-          return true;
-        } else {
-          debugWarn('Не найден элемент для клика');
-          return false;
-        }
+        return this.enterCallback();
       case KeyboardKeysEnum.BACKSPACE:
-        return this.navigationService.back();
+        return this.backCallback();
       default:
         return false;
     }

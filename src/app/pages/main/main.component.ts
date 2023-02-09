@@ -24,8 +24,6 @@ export class MainComponent {
     public tmdbService: TmdbService,
     private ngSpatialNavigationService: NgSpatialNavigationService
   ) {
-    console.log('MainComponent constructor');
-
     this.lines$ = this.activatedRoute.queryParams.pipe(
       map((params) => {
         let type = params['type'] as keyof typeof TmdbMainPageData;
@@ -40,17 +38,16 @@ export class MainComponent {
             this.pageTitle = 'Сериалы';
             break;
         }
-        return TmdbMainPageData[type] || TmdbMainPageData.main;
+        return TmdbMainPageData[type] || TmdbMainPageData.main.slice(0, 2)
       }),
       mergeMap((arr) => {
         return zip(
           arr.map(([urlPart, title]) => {
             return this.tmdbService.getList$(title, urlPart);
-          })
+          }).slice(0, 1)
         );
       }),
       tap((lines) => {
-        console.log(lines)
         // После обновления данных ждем пока отрендерится первый ряд и отфокусируем его
         if (lines.length) {
           this.ngSpatialNavigationService.waitForElement('movies-row_0');
@@ -58,4 +55,13 @@ export class MainComponent {
       })
     );
   }
+
+  ngOnInit(): void {
+    console.log('MainComponent.ngOnInit()');
+  }
+
+  ngOnDestroy(): void {
+    console.log('MainComponent.ngOnDestroy()');
+  }
+
 }

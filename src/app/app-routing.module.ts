@@ -10,24 +10,39 @@ const routes: Routes = [
   {
     path: '',
     component: MainLayoutComponent,
+    data: {
+      reuse: true,
+    },
     children: [
       {
         path: '',
         component: MainComponent,
+        data: {
+          reuse: true,
+        }
       },
       {
         path: 'profile',
         component: ProfileComponent,
+        data: {
+          reuse: true,
+        }
       },
     ],
   },
   {
     path: 'movie/:movieId',
     component: MovieCardComponent,
+    data: {
+      reuse: true,
+    }
   },
   {
     path: 'category',
     component: CategoryComponent,
+    data: {
+      reuse: true,
+    }
   },
 ];
 

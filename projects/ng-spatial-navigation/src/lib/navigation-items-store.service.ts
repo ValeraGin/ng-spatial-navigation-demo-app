@@ -4,12 +4,9 @@ import { debugLog } from './utils/debug';
 
 @Injectable()
 export class NavigationItemsStoreService {
-  private navItems: NavItem[] = [];
+  navItems: NavItem[] = [];
 
-  constructor() {
-    navStoreService = this;
-    debugLog('create NavigationItemsStoreService');
-  }
+  constructor() {}
 
   getNavItemByElement(element: Element, silent = false): NavItem | undefined {
     const navItem = this.navItems.find(
@@ -62,20 +59,12 @@ export class NavigationItemsStoreService {
       return;
     }
     this.navItems.push(navItem);
+    console.log('addNavItem', navItem.navId)
   }
 
   removeNavItem(navItem: NavItem): void {
+    console.log('removeNavItem', navItem.navId)
     this.navItems = this.navItems.filter((item) => item !== navItem);
-  }
-
-  showAll() {
-    // console.table(this.navItems.map((navItem) => { return { id: navItem.navId, el: navItem.el.nativeElement, isRemoved: navItem.isRemoved } }));
   }
 }
 
-let navStoreService: NavigationItemsStoreService;
-
-// @ts-ignore
-window['debugger'] = {
-  showAll: () => navStoreService.showAll(),
-};

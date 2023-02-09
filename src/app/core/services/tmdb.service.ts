@@ -11,7 +11,6 @@ export class TmdbService {
   constructor(private http: HttpClient) {
   }
 
-
   getPosterUrl(path: string, width: number = 500) {
     return `https://image.tmdb.org/t/p/w${width}${path}`;
   }
@@ -27,7 +26,7 @@ export class TmdbService {
         return {
           title,
           urlPart,
-          data: data.results.slice(0, 10),
+          data: data.results.slice(0, 5),
         };
       })
     );
@@ -39,7 +38,7 @@ export class TmdbService {
       mergeMap((data) => {
         return this.http.get<ListResponse>(url + 'page=2').pipe(
           map((data2) => {
-            return data.results.concat(data2.results);
+            return data.results.concat(data2.results).slice(0, 10)
           })
         );
       })
