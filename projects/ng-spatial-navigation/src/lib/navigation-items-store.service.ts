@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { NavItem } from './types/nav-item.type';
-import { debugLog } from './utils/debug';
 
 @Injectable()
 export class NavigationItemsStoreService {
@@ -9,9 +8,7 @@ export class NavigationItemsStoreService {
   constructor() {}
 
   getNavItemByElement(element: Element, silent = false): NavItem | undefined {
-    const navItem = this.navItems.find(
-      (navItem) => navItem.el.nativeElement === element
-    );
+    const navItem = this.navItems.find((navItem) => navItem.el.nativeElement === element);
     if (navItem) {
       return navItem;
     } else {
@@ -52,19 +49,20 @@ export class NavigationItemsStoreService {
   }
 
   addNavItem(navItem: NavItem): void {
-    const id = navItem.navId;
-    const findNavItem = this.navItems.find((navItem) => navItem.navId === id);
-    if (findNavItem) {
-      console.error('NavItem with id already exists', id);
-      return;
+    let id = navItem.navId;
+    let i = 0;
+    while (this.navItems.find((navItem) => navItem.navId === id)) {
+      id = id + '_copy_' + i++;
+    }
+    if (i > 0) {
+      navItem.navId = id;
     }
     this.navItems.push(navItem);
-    console.log('addNavItem', navItem.navId)
+    console.log('addNavItem', navItem.navId);
   }
 
   removeNavItem(navItem: NavItem): void {
-    console.log('removeNavItem', navItem.navId)
+    console.log('removeNavItem', navItem.navId);
     this.navItems = this.navItems.filter((item) => item !== navItem);
   }
 }
-

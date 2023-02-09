@@ -34,7 +34,7 @@ export class NavigationDebuggerService {
   printNodes() {
     console.table(
       this.navStoreService.navItems.map((navItem) => {
-        return { id: navItem.navId, el: navItem.el.nativeElement };
+        return { id: navItem.navId, el: navItem.el.nativeElement, removed: navItem.detachedFromDom };
       })
     );
   }

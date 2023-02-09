@@ -8,4 +8,5 @@
 export type FocusStatus =
   | 'waiting'
   | 'waiting_id'
+  | 'waiting_focusable_in_place'
   | 'default';

@@ -58,6 +58,11 @@ export class NavigationService {
   private waitingId: string | undefined;
 
   /**
+   * Идентификатор элемента, на который нужно перевести фокус когда он появится
+   */
+  private waitingNav: NavItem | undefined;
+
+  /**
    * Список элементов, которые попадают в так называемый арбитраж на выбор кого фокусировать
    * Это происходит, когда несколько элементов находятся на одном уровне
    * и одновременно появляются на странице и фокуса до этого не было.
@@ -87,7 +92,7 @@ export class NavigationService {
 
   @Debounce(TIME_DEBOUNCE_FOCUS_IN_MS)
   markFocusForCheck(): void {
-    if (this.status !== 'waiting' || this.navItemsForCheckFocus.length === 0) {
+    if ( (this.status !== 'waiting' && this.status !== 'waiting_focusable_in_place') || this.navItemsForCheckFocus.length === 0) {
       this.navItemsForCheckFocus = [];
       return;
     }
@@ -134,12 +139,12 @@ export class NavigationService {
   registerRoot(root: RootNavItem) {
     this.root = root;
     this.keyboardService.setRoot(root.el.nativeElement, true);
-    this.detectDomChangesService.startObserver(root.el.nativeElement);
+    // this.detectDomChangesService.startObserver(root.el.nativeElement);
   }
 
   unregisterRoot(root: RootNavItem) {
     this.keyboardService.deleteRoot(root.el.nativeElement, true);
-    this.detectDomChangesService.stopObserver(root.el.nativeElement);
+    // this.detectDomChangesService.stopObserver(root.el.nativeElement);
     this.root = undefined;
   }
 
@@ -217,9 +222,7 @@ export class NavigationService {
   }
 
   focusedElementDestroyed(): void {
-    const findReplaceRecursive = (
-      navItem: NavItem
-    ): FocusableNavItem | undefined => {
+    const findReplaceRecursive = (navItem: NavItem): FocusableNavItem | undefined => {
       if (
         navItem &&
         navItem.parent &&
@@ -243,10 +246,7 @@ export class NavigationService {
     if (this.focusedNavItem) {
       const replaceNavItem = findReplaceRecursive(this.focusedNavItem);
       if (replaceNavItem && replaceNavItem !== this.focusedNavItem) {
-        debugLog(
-          'Найден элемент для замены фокуса',
-          replaceNavItem.el.nativeElement
-        );
+        debugLog('Найден элемент для замены фокуса', replaceNavItem.el.nativeElement);
         this.focus(replaceNavItem);
       } else {
         // Произошло самое страшное - фокус ушел в никуда
@@ -334,10 +334,7 @@ export class NavigationService {
    * то вы потеряете фокус, так что осторожнее с этим методом
    */
   waitForElement(id: string): void {
-    const targetNavItem = this.navigationItemsStoreService.getNavItemById(
-      id,
-      true
-    );
+    const targetNavItem = this.navigationItemsStoreService.getNavItemById(id, true);
     if (targetNavItem) {
       if (!this.focusWithFind(targetNavItem)) {
         debugError('Элемент найден, но не может принять фокус');
@@ -353,6 +350,27 @@ export class NavigationService {
     this.status = 'waiting_id';
     this.waitingId = id;
     console.log('Ожидаем элемент с идентификатором', id);
+  }
+
+  waitFocusableElementInPlace(id: string): void {
+    const targetNavItem = this.navigationItemsStoreService.getNavItemById(id, true);
+
+    if (targetNavItem === undefined) {
+      console.log('Элемент для ожидания в нем фокусируемых элементов не найден');
+      return;
+    }
+
+    if (this.status === 'default') {
+      if (this.focusedNavItem) {
+        this.focusedNavItem.unsetFocus();
+      }
+      this.focusedNavItem = undefined;
+    }
+    this.navItemsForCheckFocus = [targetNavItem];
+    this.markFocusForCheck();
+    this.status = 'waiting_focusable_in_place';
+    this.waitingNav = targetNavItem;
+    console.log('Ожидаем фокусируемый элемент внутри', id);
   }
 
   navItemAppeared(navItem: NavItem): void {
@@ -386,6 +404,12 @@ export class NavigationService {
           console.error('Статус ожидания элемента, но нет идентификатора элемента - баг');
         }
         break;
+      case 'waiting_focusable_in_place':
+        if (isMyChild(this.waitingNav, navItem, 'parent')) {
+          this.navItemsForCheckFocus.push(navItem);
+        }
+        this.markFocusForCheck();
+        break;
       case 'default':
         // Ничего не делаем, так как фокус уже есть
         break;
@@ -394,7 +418,7 @@ export class NavigationService {
 
   navItemDisappeared(navItem: NavItem) {
     if (navItem.hasFocus) {
-      //this.needReplaceFocus(navItem);
+      this.focusedElementDestroyed();
     }
   }
 
@@ -407,9 +431,7 @@ export class NavigationService {
     }
     const navItem = await this.execDirection(direction);
     if (isBlockNavigation(navItem)) {
-      throw new Error(
-        'Какой дурак додумался передавать в setFocus блокирующий элемент?'
-      );
+      throw new Error('Какой дурак додумался передавать в setFocus блокирующий элемент?');
     }
     console.log(navItem);
     if (navItem) {

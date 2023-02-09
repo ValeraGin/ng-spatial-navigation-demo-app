@@ -24,6 +24,10 @@ export class NgSpatialNavigationService {
     this.navigationService.waitForElement(id);
   }
 
+  waitElementInPlace(id: string): void {
+    this.navigationService.waitFocusableElementInPlace(id);
+  }
+
   /**
    * Устанавливает уровень логирования
    *

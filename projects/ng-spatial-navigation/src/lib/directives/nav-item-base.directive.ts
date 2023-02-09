@@ -108,11 +108,19 @@ export abstract class NavItemBaseDirective
    */
   detachedFromDom = false;
 
+  /**
+   * Родительский элемент навигации
+   */
   parent: NavItem;
 
+  /**
+   * Родительский слой
+   */
   parentLayer: LayerNavItem;
 
   idIncrement: number = 0;
+
+  isDestroyed = false;
 
   constructor(
     protected navigationService: NavigationService,
@@ -206,6 +214,14 @@ export abstract class NavItemBaseDirective
   }
 
   registerChild(navItem: NavItem): void {
+    if (this.isDestroyed) {
+      console.error(
+        this.navId,
+        'пытаемся зарегистрировать потомка, но мы уже уничтожены'
+      );
+      return;
+    }
+
     this.children.push(navItem);
     this.children.sort(
       (a, b) =>
@@ -229,6 +245,7 @@ export abstract class NavItemBaseDirective
   ngOnDestroy(): void {
     this.disappearance();
     this.navigationItemsStoreService.removeNavItem(this);
+    this.isDestroyed = true;
   }
 
   ngOnChanges(changes: SimpleChanges): void {}
@@ -310,7 +327,7 @@ export abstract class NavItemBaseDirective
       return;
     }
     this.detachedFromDom = false;
-    console.log('attachToDom', this.navId);
+    console.log('attachToDom me -', this.navId, 'parent -', this.parent.navId);
     this.appearance();
   }
 
@@ -319,7 +336,7 @@ export abstract class NavItemBaseDirective
       return;
     }
     this.detachedFromDom = true;
-    console.log('detachFromDom', this.navId);
+    console.log('detachFromDom me -', this.navId, 'parent -', this.parent.navId);
     this.disappearance();
   }
 

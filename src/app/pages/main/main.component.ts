@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, mergeMap, Observable, startWith, tap, zip } from 'rxjs';
-import { ActivatedRoute, Params } from '@angular/router';
+import { map, mergeMap, Observable, tap, zip } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 import { TmdbService } from '../../core/services/tmdb.service';
 import { TmdbMainPageData } from '../../core/services/data/tmdb-main-page.data';
 import { MovieShort } from '../../core/services/types/list.type';
@@ -49,19 +49,12 @@ export class MainComponent {
       }),
       tap((lines) => {
         // После обновления данных ждем пока отрендерится первый ряд и отфокусируем его
-        if (lines.length) {
-          this.ngSpatialNavigationService.waitForElement('movies-row_0');
+        if (lines && lines.length > 0) {
+          console.log('MainComponent.lines$.tap(  ) - waitElementInPlace');
+          this.ngSpatialNavigationService.waitElementInPlace('focus-me')
         }
       })
     );
-  }
-
-  ngOnInit(): void {
-    console.log('MainComponent.ngOnInit()');
-  }
-
-  ngOnDestroy(): void {
-    console.log('MainComponent.ngOnDestroy()');
   }
 
 }
