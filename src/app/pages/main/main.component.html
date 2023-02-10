@@ -1,11 +1,7 @@
 <div navList id="focus-me">
   <ng-container *ngIf="lines$ | async as lines">
-    <h1 class="font-bold text-2xl ml-24 mb-5 text-white mb-10 mt-10">{{pageTitle}}</h1>
-    <div
-      *ngFor="let line of lines; let lineIndex = index"
-      class="mt-5 movies-row"
-      navList
-    >
+    <h1 class="font-bold text-2xl ml-24 mb-5 text-white mb-10 mt-10">{{ pageTitle }}</h1>
+    <div *ngFor="let line of lines; let lineIndex = index" class="mt-5 movies-row" navList>
       <h1 class="font-bold text-2xl ml-24 mb-5 text-white">{{ line.title }}</h1>
       <div [id]="'movies-row_' + lineIndex" class="flex ml-20" horizontal navList>
         <div
@@ -57,9 +53,7 @@
               </svg>
             </div>
             <div class="px-6 py-4">
-              <div class="font-bold text-l text-white mb-2 truncate w-60">
-                Показать еще
-              </div>
+              <div class="font-bold text-l text-white mb-2 truncate w-60">Показать еще</div>
             </div>
           </div>
         </div>

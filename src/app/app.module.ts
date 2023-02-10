@@ -22,12 +22,7 @@ import { SideMenuComponent } from './layouts/main-layout/side-menu/side-menu.com
     MovieCardComponent,
     CategoryComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule,
-    NgSpatialNavigationModule,
-  ],
+  imports: [BrowserModule, AppRoutingModule, HttpClientModule, NgSpatialNavigationModule],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

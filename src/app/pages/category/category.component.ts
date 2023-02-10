@@ -9,10 +9,9 @@ import { TmdbService } from '../../core/services/tmdb.service';
   selector: 'app-category',
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoryComponent {
-
   pageTitle = '';
 
   movies$: Observable<MovieShort[]>;

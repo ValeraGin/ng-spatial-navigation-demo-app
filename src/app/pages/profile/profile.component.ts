@@ -10,28 +10,23 @@ export class ProfileComponent implements OnInit {
   profiles = [
     {
       name: 'Федя',
-      image:
-        'https://i.pinimg.com/originals/0c/0d/0d/0c0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d.jpg',
+      image: 'https://i.pinimg.com/originals/0c/0d/0d/0c0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d.jpg',
     },
     {
       name: 'Вася',
-      image:
-        'https://i.pinimg.com/originals/0c/0d/0d/0c0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d.jpg',
+      image: 'https://i.pinimg.com/originals/0c/0d/0d/0c0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d.jpg',
     },
     {
       name: 'Петя',
-      image:
-        'https://i.pinimg.com/originals/0c/0d/0d/0c0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d.jpg',
+      image: 'https://i.pinimg.com/originals/0c/0d/0d/0c0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d.jpg',
     },
     {
       name: 'Коля',
-      image:
-        'https://i.pinimg.com/originals/0c/0d/0d/0c0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d.jpg',
+      image: 'https://i.pinimg.com/originals/0c/0d/0d/0c0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d.jpg',
     },
   ];
 
-  constructor(private ngSpatialNavigationService: NgSpatialNavigationService) {
-  }
+  constructor(private ngSpatialNavigationService: NgSpatialNavigationService) {}
 
   setProfile(profile: { image: string; name: string }) {
     alert('Выбран профиль: ' + profile.name);

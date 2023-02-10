@@ -1,7 +1,4 @@
-<div
-  *ngIf="movie$ | async; let movie"
-  class="bg-black text-white p-10 rounded-lg shadow-lg"
->
+<div *ngIf="movie$ | async; let movie" class="bg-black text-white p-10 rounded-lg shadow-lg">
   <h1 class="text-3xl font-bold">{{ movie.title }}</h1>
   <p class="text-gray-400 mt-2">{{ movie.overview }}</p>
 </div>

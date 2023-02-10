@@ -10,7 +10,7 @@ import { Location } from '@angular/common';
 export class AppComponent {
   constructor(
     private ngSpatialNavigationService: NgSpatialNavigationService,
-    private location: Location,
+    private location: Location
   ) {
     // Заметка: Элементы на которых есть свойство "back" берут на себя фокус при нажатии кнопки "назад"
     // А если таких элементов нет, то вызывается этот колбек

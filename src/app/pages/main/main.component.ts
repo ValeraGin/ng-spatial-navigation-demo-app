@@ -13,7 +13,6 @@ import { NgSpatialNavigationService } from 'ng-spatial-navigation';
   styleUrls: ['./main.component.scss'],
 })
 export class MainComponent {
-
   pageTitle = 'Главная';
 
   lines$: Observable<{ title: string; urlPart: string; data: MovieShort[] }[]>;
@@ -38,23 +37,24 @@ export class MainComponent {
             this.pageTitle = 'Сериалы';
             break;
         }
-        return TmdbMainPageData[type] || TmdbMainPageData.main.slice(0, 2)
+        return TmdbMainPageData[type] || TmdbMainPageData.main.slice(0, 2);
       }),
       mergeMap((arr) => {
         return zip(
-          arr.map(([urlPart, title]) => {
-            return this.tmdbService.getList$(title, urlPart);
-          }).slice(0, 1)
+          arr
+            .map(([urlPart, title]) => {
+              return this.tmdbService.getList$(title, urlPart);
+            })
+            .slice(0, 1)
         );
       }),
       tap((lines) => {
         // После обновления данных ждем пока отрендерится первый ряд и отфокусируем его
         if (lines && lines.length > 0) {
           console.log('MainComponent.lines$.tap(  ) - waitElementInPlace');
-          this.ngSpatialNavigationService.waitElementInPlace('focus-me')
+          this.ngSpatialNavigationService.waitElementInPlace('focus-me');
         }
       })
     );
   }
-
 }

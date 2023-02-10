@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { BlockNavigation, DirectionFnResult, NavItem, } from 'ng-spatial-navigation';
-import { environment } from "../../../../environments/environment";
+import { BlockNavigation, DirectionFnResult, NavItem } from 'ng-spatial-navigation';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-side-menu',
@@ -8,20 +8,17 @@ import { environment } from "../../../../environments/environment";
   styleUrls: ['./side-menu.component.scss'],
 })
 export class SideMenuComponent {
-
   appName = environment.appName;
 
   menu = [
-    {title: 'Главная', link: '/', queryParams: {type: 'main'}},
-    {title: 'Фильмы', link: '/', queryParams: {type: 'films'}},
-    {title: 'Сериалы', link: '/', queryParams: {type: 'shows'}},
-    {title: 'Профиль', link: '/profile', queryParams: {}},
+    { title: 'Главная', link: '/', queryParams: { type: 'main' } },
+    { title: 'Фильмы', link: '/', queryParams: { type: 'films' } },
+    { title: 'Сериалы', link: '/', queryParams: { type: 'shows' } },
+    { title: 'Профиль', link: '/profile', queryParams: {} },
   ];
 
   // Происходит при нажатии на кнопку Вправо на пункте меню
-  menuItemRightActionCallback = async (
-    navItem?: NavItem
-  ): Promise<DirectionFnResult> => {
+  menuItemRightActionCallback = async (navItem?: NavItem): Promise<DirectionFnResult> => {
     // Если пункт меню активен - значит мы находимся на странице с контентом
     if (navItem && navItem.el.nativeElement.classList.contains('active')) {
       // Разрешаем навигацию дальше, чтобы фокус перешел на контент
