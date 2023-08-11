@@ -3,7 +3,11 @@ export interface Tree {
   children?: Tree[];
 }
 
-export const prettyPrint = (tree: any, depth: number) => {
+export const prettyPrint = (tree: Tree | undefined, depth: number) => {
+  if (!tree) {
+    console.log('// undefined');
+    return;
+  }
   if (depth === 0) {
     console.log('// ' + tree.navId);
   } else if (depth === 1) {

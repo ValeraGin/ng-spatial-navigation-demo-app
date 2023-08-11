@@ -101,7 +101,7 @@ export abstract class NavItemBaseDirective
   /**
    * список дочерних элементов
    */
-  protected children: NavItem[] = [];
+  children: NavItem[] = [];
 
   /**
    * флаг, что элемент был удален из DOM, но компонент жив (это происходит при использовании ReuseStrategy)
