@@ -27,7 +27,7 @@ export class TmdbService {
           return {
             title,
             urlPart,
-            data: data.results.slice(0, 5),
+            data: data.results,
           };
         })
       );
@@ -39,7 +39,7 @@ export class TmdbService {
       mergeMap((data) => {
         return this.http.get<ListResponse>(url + 'page=2').pipe(
           map((data2) => {
-            return data.results.concat(data2.results).slice(0, 10);
+            return data.results.concat(data2.results);
           })
         );
       })

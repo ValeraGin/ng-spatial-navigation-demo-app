@@ -16,11 +16,7 @@ import {
 } from '@angular/core';
 import { NavigationService } from '../navigation.service';
 import { NavigationItemsStoreService } from '../navigation-items-store.service';
-import {
-  FocusableNavItem,
-  LayerNavItem,
-  NavItem,
-} from '../types/nav-item.type';
+import { FocusableNavItem, LayerNavItem, NavItem } from '../types/nav-item.type';
 import { Directions, DirectionType } from '../types/directions.type';
 import { isMyChild } from '../utils/is-my-child';
 import { NAV_ITEM_TOKEN } from '../token/nav-item.token';
@@ -194,15 +190,9 @@ export abstract class NavItemBaseDirective
     this.setHasFocus();
   }
 
-  childFocusLost(
-    child: NavItem,
-    nextFocus: FocusableNavItem | undefined
-  ): void {
+  childFocusLost(child: NavItem, nextFocus: FocusableNavItem | undefined): void {
     if (!this.hasFocus) {
-      console.error(
-        this.navId,
-        'мы не имеем фокуса, но потомок потерял фокус - это баг'
-      );
+      console.error(this.navId, 'мы не имеем фокуса, но потомок потерял фокус - это баг');
       return;
     }
     if (nextFocus && isMyChild(this, nextFocus as any, 'parent')) {
@@ -215,10 +205,12 @@ export abstract class NavItemBaseDirective
 
   registerChild(navItem: NavItem): void {
     if (this.isDestroyed) {
-      console.error(
-        this.navId,
-        'пытаемся зарегистрировать потомка, но мы уже уничтожены'
-      );
+      console.error(this.navId, 'пытаемся зарегистрировать потомка, но мы уже уничтожены');
+      return;
+    }
+
+    if (this.children.find((child) => child === navItem)) {
+      console.error(this.navId, 'пытаемся зарегистрировать потомка, но он уже зарегистрирован');
       return;
     }
 
@@ -253,14 +245,16 @@ export abstract class NavItemBaseDirective
   ngOnInit(): void {
     if (!this.navId) {
       this.navId =
-        this.el.nativeElement.id ||
-        (this.parent && this.parent.generateIdForChild(this));
+        this.el.nativeElement.id || (this.parent && this.parent.generateIdForChild(this));
     }
     this.navigationItemsStoreService.addNavItem(this);
   }
 
-  ngAfterContentInit(): void {
+  ngAfterViewInit(): void {
     this.appearance();
+  }
+  ngAfterContentInit(): void {
+    // console.log('ngAfterContentInit', this.navId);
   }
 
   findBackward(child?: NavItem): NavItem | undefined {
@@ -341,6 +335,7 @@ export abstract class NavItemBaseDirective
   }
 
   appearance(): void {
+    console.log('%c%s', 'color: green', 'appearance', this.navId, this.parent?.navId);
     if (this.parent) {
       this.parent.registerChild(this);
     }

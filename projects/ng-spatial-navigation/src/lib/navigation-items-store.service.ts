@@ -51,6 +51,11 @@ export class NavigationItemsStoreService {
   addNavItem(navItem: NavItem): void {
     let id = navItem.navId;
     let i = 0;
+    //skip if exists
+    if (this.navItems.find((navItem) => navItem.navId === id)) {
+      console.log('navItem already exists', id);
+      return;
+    }
     while (this.navItems.find((navItem) => navItem.navId === id)) {
       id = id + '_copy_' + i++;
     }
@@ -58,7 +63,6 @@ export class NavigationItemsStoreService {
       navItem.navId = id;
     }
     this.navItems.push(navItem);
-    console.log('addNavItem', navItem.navId);
   }
 
   removeNavItem(navItem: NavItem): void {

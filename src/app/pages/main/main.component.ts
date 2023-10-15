@@ -37,7 +37,7 @@ export class MainComponent {
             this.pageTitle = 'Сериалы';
             break;
         }
-        return TmdbMainPageData[type] || TmdbMainPageData.main.slice(0, 2);
+        return TmdbMainPageData[type] || TmdbMainPageData.main;
       }),
       mergeMap((arr) => {
         return zip(
@@ -45,7 +45,7 @@ export class MainComponent {
             .map(([urlPart, title]) => {
               return this.tmdbService.getList$(title, urlPart);
             })
-            .slice(0, 1)
+            //.slice(0, 1)
         );
       }),
       tap((lines) => {

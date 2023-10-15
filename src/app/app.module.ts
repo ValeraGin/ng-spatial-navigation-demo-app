@@ -11,6 +11,8 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { MovieCardComponent } from './pages/movie-card/movie-card.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { SideMenuComponent } from './layouts/main-layout/side-menu/side-menu.component';
+import {RouteReuseStrategy} from "@angular/router";
+import {CustomRouteReuseStrategy} from "./core/custom.route-reuse-strategy";
 
 @NgModule({
   declarations: [
@@ -24,5 +26,11 @@ import { SideMenuComponent } from './layouts/main-layout/side-menu/side-menu.com
   ],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, NgSpatialNavigationModule],
   bootstrap: [AppComponent],
+  // providers: [
+  //   {
+  //     provide: RouteReuseStrategy,
+  //     useClass: CustomRouteReuseStrategy,
+  //   },
+  // ],
 })
 export class AppModule {}

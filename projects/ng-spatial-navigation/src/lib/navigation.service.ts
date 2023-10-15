@@ -50,7 +50,14 @@ export class NavigationService {
   /**
    * Статус фокуса
    */
-  private status: FocusStatus = 'waiting';
+  private _status: FocusStatus = 'waiting';
+  get status(): FocusStatus {
+    return this._status;
+  }
+  set status(value: FocusStatus) {
+    this._status = value;
+    debugLog('NavigationService.status', value);
+  }
 
   /**
    * Идентификатор элемента, на который нужно перевести фокус когда он появится
@@ -92,7 +99,10 @@ export class NavigationService {
 
   @Debounce(TIME_DEBOUNCE_FOCUS_IN_MS)
   markFocusForCheck(): void {
-    if ( (this.status !== 'waiting' && this.status !== 'waiting_focusable_in_place') || this.navItemsForCheckFocus.length === 0) {
+    if (
+      (this.status !== 'waiting' && this.status !== 'waiting_focusable_in_place') ||
+      this.navItemsForCheckFocus.length === 0
+    ) {
       this.navItemsForCheckFocus = [];
       return;
     }
@@ -370,10 +380,11 @@ export class NavigationService {
     this.markFocusForCheck();
     this.status = 'waiting_focusable_in_place';
     this.waitingNav = targetNavItem;
-    console.log('Ожидаем фокусируемый элемент внутри', id);
+    console.log('Ожидаем фокусируемый элемент внутри', targetNavItem.el.nativeElement);
   }
 
   navItemAppeared(navItem: NavItem): void {
+    console.log('Появился элемент', navItem.el.nativeElement, 'parent', navItem.parent);
     switch (this.status) {
       case 'waiting':
         if (
@@ -433,7 +444,6 @@ export class NavigationService {
     if (isBlockNavigation(navItem)) {
       throw new Error('Какой дурак додумался передавать в setFocus блокирующий элемент?');
     }
-    console.log(navItem);
     if (navItem) {
       this.focusWithFind(navItem);
     } else {
